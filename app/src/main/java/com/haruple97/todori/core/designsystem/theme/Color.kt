@@ -14,6 +14,12 @@ val CoralPinkDark = Color(0xFFFFB3C1)
 val PeachCardDark = Color(0xFF3F2C32)
 val CocoaTextDark = Color(0xFFFFEDEF)
 
+// Accents (gradient/decor)
+val JellyPinkLight = Color(0xFFFFA9BA)
+val JellyPinkDeep = Color(0xFFFF7C93)
+val PeachGlow = Color(0xFFFFC6B8)
+val Lavender = Color(0xFFE9D8FF)
+
 // Character (theme independent)
 val TomatoRed = Color(0xFFFF6B6B)
 val UnripeGreen = Color(0xFFB8E0A8)

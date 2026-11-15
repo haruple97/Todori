@@ -9,7 +9,6 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -60,8 +59,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.core.layout.WindowSizeClass
 import com.haruple97.todori.R
 import com.haruple97.todori.core.common.formatRemainingTime
+import com.haruple97.todori.core.designsystem.BackgroundTone
+import com.haruple97.todori.core.designsystem.TodoriBackground
 import com.haruple97.todori.core.model.TimerStatus
 import com.haruple97.todori.core.ui.ConfettiBurst
+import com.haruple97.todori.core.ui.FloatingDecor
 import com.haruple97.todori.core.ui.SoftButton
 import com.haruple97.todori.core.ui.TomatoCharacter
 import com.haruple97.todori.core.ui.TomatoMood
@@ -126,7 +128,13 @@ fun TimerScreen(
         onStop = viewModel::stop
     )
 
-    Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    val tone = when (ui.status) {
+        TimerStatus.Idle -> BackgroundTone.Calm
+        TimerStatus.Running, TimerStatus.Paused -> BackgroundTone.Focus
+        TimerStatus.Finished -> BackgroundTone.Celebrate
+    }
+    TodoriBackground(tone, modifier.fillMaxSize()) {
+        FloatingDecor()
         BoxWithConstraints(
             Modifier
                 .fillMaxSize()
