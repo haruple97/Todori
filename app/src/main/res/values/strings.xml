@@ -19,11 +19,14 @@
     <string-array name="bubble_done">
         <item>짝짝! 잘 익었어요</item>
         <item>해냈다! 정말 수고했어요</item>
-        <item>오늘도 한 개 수확 완료!</item>
+        <item>오늘도 해냈어요, 최고!</item>
     </string-array>
 
-    <string name="harvest_today">오늘 %d개 수확했어요</string>
-    <string name="harvest_empty">오늘의 첫 토마토를 키워봐요</string>
+    <string name="greeting_morning">좋은 아침이에요</string>
+    <string name="greeting_afternoon">좋은 오후예요</string>
+    <string name="greeting_evening">좋은 저녁이에요</string>
+    <string name="greeting_night">오늘도 수고했어요</string>
+    <string name="date_pattern">M월 d일 EEEE</string>
     <string name="minutes_format">%d분</string>
     <string name="done_label">완료!</string>
     <string name="dial_hint">토마토를 위아래로 쓸어서 시간을 키워요</string>

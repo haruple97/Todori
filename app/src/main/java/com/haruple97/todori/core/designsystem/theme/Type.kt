@@ -22,6 +22,12 @@ val Typography = Typography(
         lineHeight = 72.sp,
         shadow = Shadow(color = Color(0x66FF8FA3), offset = Offset(0f, 6f), blurRadius = 14f)
     ),
+    headlineSmall = TextStyle(
+        fontFamily = JuaFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 28.sp,
+        lineHeight = 34.sp
+    ),
     titleMedium = TextStyle(
         fontFamily = JuaFamily,
         fontWeight = FontWeight.Normal,
