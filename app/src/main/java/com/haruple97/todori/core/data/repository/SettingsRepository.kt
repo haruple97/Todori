@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.haruple97.todori.core.model.Appearance
+import com.haruple97.todori.core.model.CycleSettings
 import com.haruple97.todori.core.model.SkinId
 import com.haruple97.todori.core.model.ThemeId
 import com.haruple97.todori.core.model.TimerSettings
@@ -24,6 +25,10 @@ interface SettingsRepository {
     val appearance: Flow<Appearance>
     suspend fun setSkin(skin: SkinId)
     suspend fun setTheme(theme: ThemeId)
+
+    /** 사이클 모드 설정(프리미엄). 켜져 있어도 구독이 없으면 쓰지 않는다. */
+    val cycle: Flow<CycleSettings>
+    suspend fun setCycle(settings: CycleSettings)
 
     /** 인앱 리뷰를 이미 띄웠는지. 첫 성공 때 한 번만 요청하기 위한 표식. */
     suspend fun isReviewRequested(): Boolean
@@ -55,6 +60,27 @@ class SettingsRepositoryImpl @Inject constructor(
         dataStore.edit { it[THEME] = theme.id }
     }
 
+    override val cycle: Flow<CycleSettings> = dataStore.data.map { prefs ->
+        val default = CycleSettings()
+        CycleSettings(
+            enabled = prefs[CYCLE_ENABLED] ?: default.enabled,
+            rounds = prefs[CYCLE_ROUNDS] ?: default.rounds,
+            shortMinutes = prefs[CYCLE_SHORT] ?: default.shortMinutes,
+            longMinutes = prefs[CYCLE_LONG] ?: default.longMinutes,
+            auto = prefs[CYCLE_AUTO] ?: default.auto
+        )
+    }
+
+    override suspend fun setCycle(settings: CycleSettings) {
+        dataStore.edit {
+            it[CYCLE_ENABLED] = settings.enabled
+            it[CYCLE_ROUNDS] = settings.rounds
+            it[CYCLE_SHORT] = settings.shortMinutes
+            it[CYCLE_LONG] = settings.longMinutes
+            it[CYCLE_AUTO] = settings.auto
+        }
+    }
+
     override suspend fun isReviewRequested(): Boolean = dataStore.data.first()[REVIEW_REQUESTED] ?: false
 
     override suspend fun markReviewRequested() {
@@ -66,5 +92,10 @@ class SettingsRepositoryImpl @Inject constructor(
         val SKIN = stringPreferencesKey("skin")
         val THEME = stringPreferencesKey("theme")
         val REVIEW_REQUESTED = booleanPreferencesKey("review_requested")
+        val CYCLE_ENABLED = booleanPreferencesKey("cycle_enabled")
+        val CYCLE_ROUNDS = intPreferencesKey("cycle_rounds")
+        val CYCLE_SHORT = intPreferencesKey("cycle_short")
+        val CYCLE_LONG = intPreferencesKey("cycle_long")
+        val CYCLE_AUTO = booleanPreferencesKey("cycle_auto")
     }
 }

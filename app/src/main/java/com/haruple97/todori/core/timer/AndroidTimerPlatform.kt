@@ -9,6 +9,7 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.haruple97.todori.R
+import com.haruple97.todori.core.model.TimerPhase
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,11 +33,19 @@ class AndroidTimerPlatform @Inject constructor(
 
     override fun cancelAlarm() = alarmManager.cancel(alarmIntent())
 
-    override fun showRunning(endElapsedMillis: Long) {
+    override fun showRunning(phase: TimerPhase, endElapsedMillis: Long) {
         val endWall = clock.wallClockMillis() + (endElapsedMillis - clock.elapsedRealtime())
         val notification = NotificationCompat.Builder(context, CHANNEL_PROGRESS)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(R.string.notif_focus_running))
+            .setContentTitle(
+                context.getString(
+                    when (phase) {
+                        TimerPhase.Focus -> R.string.notif_focus_running
+                        TimerPhase.ShortBreak -> R.string.notif_short_break_running
+                        TimerPhase.LongBreak -> R.string.notif_long_break_running
+                    }
+                )
+            )
             .setWhen(endWall)
             .setShowWhen(true)
             .setUsesChronometer(true)
@@ -51,11 +60,12 @@ class AndroidTimerPlatform @Inject constructor(
 
     override fun clearRunning() = notifications.cancel(ID_RUNNING)
 
-    override fun showDone() {
+    override fun showDone(phase: TimerPhase) {
+        val breakEnded = phase != TimerPhase.Focus
         val notification = NotificationCompat.Builder(context, CHANNEL_DONE)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(R.string.notif_done_title))
-            .setContentText(context.getString(R.string.notif_done_text))
+            .setContentTitle(context.getString(if (breakEnded) R.string.notif_break_done_title else R.string.notif_done_title))
+            .setContentText(context.getString(if (breakEnded) R.string.notif_break_done_text else R.string.notif_done_text))
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)

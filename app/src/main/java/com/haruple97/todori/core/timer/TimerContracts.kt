@@ -1,5 +1,7 @@
 package com.haruple97.todori.core.timer
 
+import com.haruple97.todori.core.model.CyclePlan
+import com.haruple97.todori.core.model.TimerPhase
 import com.haruple97.todori.core.model.TimerStatus
 
 interface TimeSource {
@@ -13,7 +15,10 @@ data class TimerSnapshot(
     val remainingMillis: Long,
     val endElapsed: Long,
     val savedAtElapsed: Long,
-    val savedAtWall: Long
+    val savedAtWall: Long,
+    val phase: TimerPhase = TimerPhase.Focus,
+    val round: Int = 1,
+    val plan: CyclePlan? = null
 )
 
 interface TimerPersistence {
@@ -25,7 +30,7 @@ interface TimerPersistence {
 interface TimerPlatform {
     fun scheduleAlarm(triggerElapsedMillis: Long)
     fun cancelAlarm()
-    fun showRunning(endElapsedMillis: Long)
+    fun showRunning(phase: TimerPhase, endElapsedMillis: Long)
     fun clearRunning()
-    fun showDone()
+    fun showDone(phase: TimerPhase)
 }

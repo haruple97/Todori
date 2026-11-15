@@ -151,4 +151,9 @@
     <string name="stats_month_avg">기록한 날 평균</string>
     <string name="stats_locked_title">프리미엄에서 볼 수 있어요</string>
     <string name="stats_locked_body">주간 그래프, 시간대 분석, 월간 기록을 열어보세요</string>
+
+    <string name="notif_short_break_running">짧은 휴식 중이에요</string>
+    <string name="notif_long_break_running">긴 휴식 중이에요</string>
+    <string name="notif_break_done_title">휴식 끝!</string>
+    <string name="notif_break_done_text">다시 집중할 시간이에요.</string>
 </resources>
