@@ -1,11 +1,26 @@
 <resources>
     <string name="app_name">Todori</string>
-    <string name="timer_title">토돌이</string>
 
-    <string name="status_idle">오늘도 같이 집중해볼까요?</string>
-    <string name="status_focus">토돌이가 익어가는 중…</string>
-    <string name="status_paused">잠깐 쉬는 중이에요</string>
-    <string name="status_done">짝짝! 잘 익었어요</string>
+    <string-array name="bubble_idle">
+        <item>오늘도 같이 집중해볼까요?</item>
+        <item>나 준비됐어! 시작해볼까?</item>
+        <item>말랑하게 익어볼 시간이에요</item>
+    </string-array>
+    <string-array name="bubble_focus">
+        <item>토돌이가 익어가는 중…</item>
+        <item>우리 지금 잘하고 있어!</item>
+        <item>조금만 더, 거의 다 익었어요</item>
+    </string-array>
+    <string-array name="bubble_paused">
+        <item>잠깐 쉬는 중이에요</item>
+        <item>쿨쿨… 준비되면 깨워줘</item>
+        <item>천천히 해도 괜찮아요</item>
+    </string-array>
+    <string-array name="bubble_done">
+        <item>짝짝! 잘 익었어요</item>
+        <item>해냈다! 정말 수고했어요</item>
+        <item>오늘도 한 개 수확 완료!</item>
+    </string-array>
 
     <string name="minutes_format">%d분</string>
     <string name="done_label">완료!</string>

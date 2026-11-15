@@ -41,12 +41,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -62,15 +66,25 @@ import com.haruple97.todori.R
 import com.haruple97.todori.core.common.formatRemainingTime
 import com.haruple97.todori.core.designsystem.BackgroundTone
 import com.haruple97.todori.core.designsystem.TodoriBackground
+import com.haruple97.todori.core.designsystem.theme.JellyPinkDeep
+import com.haruple97.todori.core.designsystem.theme.JellyPinkLight
+import com.haruple97.todori.core.designsystem.theme.PeachGlow
 import com.haruple97.todori.core.model.TimerStatus
 import com.haruple97.todori.core.ui.ConfettiBurst
 import com.haruple97.todori.core.ui.FloatingDecor
 import com.haruple97.todori.core.ui.GlassIconButton
 import com.haruple97.todori.core.ui.JellyButton
+import com.haruple97.todori.core.ui.SpeechBubble
 import com.haruple97.todori.core.ui.TomatoCharacter
 import com.haruple97.todori.core.ui.TomatoMood
+import com.haruple97.todori.core.ui.drawHeart
 import com.haruple97.todori.core.ui.icon.TodoriIcons
+import com.haruple97.todori.feature.timer.component.DialRail
 import com.haruple97.todori.feature.timer.component.TomatoDial
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.random.Random
 import kotlinx.coroutines.delay
 
 private class TimerActions(
@@ -180,10 +194,10 @@ private fun BoxScope.SinglePaneContent(ui: TimerUiState, actions: TimerActions, 
             .widthIn(max = MAX_CONTENT_WIDTH),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(8.dp))
-        Header(ui)
         Spacer(Modifier.weight(1f))
-        TomatoStage(ui, stageSize = minOf(STAGE_MAX, height * 0.38f), onMinutesChange = actions.onMinutesChange)
+        SpeechBubble(bubbleText(ui.status))
+        Spacer(Modifier.height(14.dp))
+        TomatoStage(ui, stageSize = minOf(STAGE_MAX, height * 0.36f), onMinutesChange = actions.onMinutesChange)
         Spacer(Modifier.height(8.dp))
         TimeAndHint(ui)
         Spacer(Modifier.weight(1f))
@@ -194,10 +208,16 @@ private fun BoxScope.SinglePaneContent(ui: TimerUiState, actions: TimerActions, 
 @Composable
 private fun TwoPaneContent(ui: TimerUiState, actions: TimerActions, width: Dp, height: Dp) {
     Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-        Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
+        Column(
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            SpeechBubble(bubbleText(ui.status))
+            Spacer(Modifier.height(14.dp))
             TomatoStage(
                 ui = ui,
-                stageSize = minOf(STAGE_MAX_WIDE, height, width / 2 - 12.dp),
+                stageSize = minOf(STAGE_MAX_WIDE, height - BUBBLE_RESERVED_HEIGHT, width / 2 - 12.dp),
                 onMinutesChange = actions.onMinutesChange
             )
         }
@@ -209,28 +229,11 @@ private fun TwoPaneContent(ui: TimerUiState, actions: TimerActions, width: Dp, h
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Header(ui)
-            Spacer(Modifier.height(16.dp))
             TimeAndHint(ui)
             Spacer(Modifier.height(24.dp))
             Controls(ui.status, actions)
         }
     }
-}
-
-@Composable
-private fun Header(ui: TimerUiState) {
-    Text(
-        stringResource(R.string.timer_title),
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.primary
-    )
-    Spacer(Modifier.height(4.dp))
-    Text(
-        text = stringResource(statusTextRes(ui)),
-        style = MaterialTheme.typography.bodyLarge,
-        textAlign = TextAlign.Center
-    )
 }
 
 @Composable
@@ -241,7 +244,7 @@ private fun TimeAndHint(ui: TimerUiState) {
         color = MaterialTheme.colorScheme.onBackground
     )
     if (ui.status == TimerStatus.Idle) {
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(8.dp))
         Text(
             text = stringResource(R.string.dial_hint),
             style = MaterialTheme.typography.bodyLarge,
@@ -260,6 +263,12 @@ private fun TomatoStage(ui: TimerUiState, stageSize: Dp, onMinutesChange: (Int) 
                 onMinutesChange = onMinutesChange,
                 modifier = Modifier.size(stageSize * DIAL_RATIO)
             )
+            DialRail(
+                minutes = ui.focusMinutes,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .height(stageSize * RAIL_RATIO)
+            )
         } else {
             ProgressRing(ui.progress, Modifier.size(stageSize))
             TomatoCharacter(
@@ -271,18 +280,33 @@ private fun TomatoStage(ui: TimerUiState, stageSize: Dp, onMinutesChange: (Int) 
     }
 }
 
+/** 핑크 스윕 그라데이션 링. 진행 끝에 하트가 달려 따라간다. */
 @Composable
 private fun ProgressRing(progress: Float, modifier: Modifier = Modifier) {
     val animated by animateFloatAsState(progress, tween(TICK_MILLIS.toInt(), easing = LinearEasing), label = "ring")
-    val track = MaterialTheme.colorScheme.surfaceVariant
-    val color = MaterialTheme.colorScheme.primary
+    val track = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
     Canvas(modifier) {
         val stroke = 14.dp.toPx()
         val arcSize = Size(size.width - stroke, size.height - stroke)
         val topLeft = Offset(stroke / 2, stroke / 2)
         drawArc(track, 0f, 360f, false, topLeft, arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
         if (animated > 0f) {
-            drawArc(color, -90f, 360f * animated, false, topLeft, arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
+            rotate(-90f) {
+                drawArc(
+                    brush = Brush.sweepGradient(listOf(PeachGlow, JellyPinkLight, JellyPinkDeep)),
+                    startAngle = 0f,
+                    sweepAngle = 360f * animated,
+                    useCenter = false,
+                    topLeft = topLeft,
+                    size = arcSize,
+                    style = Stroke(stroke, cap = StrokeCap.Round)
+                )
+            }
+            val radius = (size.width - stroke) / 2f
+            val angle = (-90f + 360f * animated) * PI.toFloat() / 180f
+            val head = Offset(center.x + radius * cos(angle), center.y + radius * sin(angle))
+            drawCircle(Color.White, radius = stroke * 0.95f, center = head)
+            drawHeart(head, stroke * 0.5f, JellyPinkDeep)
         }
     }
 }
@@ -346,11 +370,19 @@ private fun moodOf(status: TimerStatus): TomatoMood = when (status) {
     TimerStatus.Running -> TomatoMood.Focus
 }
 
-private fun statusTextRes(ui: TimerUiState): Int = when (ui.status) {
-    TimerStatus.Idle -> R.string.status_idle
-    TimerStatus.Paused -> R.string.status_paused
-    TimerStatus.Running -> R.string.status_focus
-    TimerStatus.Finished -> R.string.status_done
+/** 상태마다 준비된 문구 중 하나를 고른다. 같은 상태에서는 회전해도 같은 문구를 유지한다. */
+@Composable
+private fun bubbleText(status: TimerStatus): String {
+    val options = stringArrayResource(
+        when (status) {
+            TimerStatus.Idle -> R.array.bubble_idle
+            TimerStatus.Running -> R.array.bubble_focus
+            TimerStatus.Paused -> R.array.bubble_paused
+            TimerStatus.Finished -> R.array.bubble_done
+        }
+    )
+    val seed = rememberSaveable(status) { Random.nextInt(1000) }
+    return options[seed % options.size]
 }
 
 @Composable
@@ -363,6 +395,8 @@ private fun timeText(ui: TimerUiState): String = when (ui.status) {
 private val STAGE_MAX = 290.dp
 private val STAGE_MAX_WIDE = 360.dp
 private val MAX_CONTENT_WIDTH = 480.dp
+private val BUBBLE_RESERVED_HEIGHT = 84.dp
 private const val DIAL_RATIO = 0.76f
 private const val TOMATO_RATIO = 0.72f
+private const val RAIL_RATIO = 0.62f
 private const val TICK_MILLIS = 250L

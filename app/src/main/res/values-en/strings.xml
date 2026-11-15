@@ -1,11 +1,26 @@
 <resources>
     <string name="app_name">Todori</string>
-    <string name="timer_title">Todori</string>
 
-    <string name="status_idle">Ready to focus together?</string>
-    <string name="status_focus">Todori is ripening…</string>
-    <string name="status_paused">Taking a little pause</string>
-    <string name="status_done">Yay! Perfectly ripe</string>
+    <string-array name="bubble_idle">
+        <item>Ready to focus together?</item>
+        <item>I\'m ready! Shall we start?</item>
+        <item>Time to ripen nice and soft</item>
+    </string-array>
+    <string-array name="bubble_focus">
+        <item>Todori is ripening…</item>
+        <item>We\'re doing great!</item>
+        <item>Almost there, almost ripe</item>
+    </string-array>
+    <string-array name="bubble_paused">
+        <item>Taking a little pause</item>
+        <item>Zzz… wake me when ready</item>
+        <item>No rush, take your time</item>
+    </string-array>
+    <string-array name="bubble_done">
+        <item>Yay! Perfectly ripe</item>
+        <item>We did it! Great job</item>
+        <item>One more tomato harvested!</item>
+    </string-array>
 
     <string name="minutes_format">%d min</string>
     <string name="done_label">Done!</string>

@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -30,6 +31,7 @@ import com.haruple97.todori.core.designsystem.theme.CheekPink
 import com.haruple97.todori.core.designsystem.theme.FaceDark
 import com.haruple97.todori.core.designsystem.theme.LeafGreen
 import com.haruple97.todori.core.designsystem.theme.LeafGreenDeep
+import com.haruple97.todori.core.designsystem.theme.PeachGlow
 import com.haruple97.todori.core.designsystem.theme.TomatoRed
 import com.haruple97.todori.core.designsystem.theme.UnripeGreen
 import kotlin.random.Random
@@ -87,11 +89,18 @@ fun TomatoCharacter(
                 transformOrigin = TransformOrigin(0.5f, 0.95f)
             }
     ) {
-        drawTomato(mood, ripeness.coerceIn(0f, 1f), sway, breath, blink.value)
+        drawTomato(mood, ripeness.coerceIn(0f, 1f), sway, breath, blink.value, hop)
     }
 }
 
-private fun DrawScope.drawTomato(mood: TomatoMood, ripeness: Float, sway: Float, breath: Float, blink: Float) {
+private fun DrawScope.drawTomato(
+    mood: TomatoMood,
+    ripeness: Float,
+    sway: Float,
+    breath: Float,
+    blink: Float,
+    hop: Float
+) {
     val s = size.minDimension
     val cx = size.width / 2f
     val cy = s * 0.57f
@@ -156,6 +165,29 @@ private fun DrawScope.drawTomato(mood: TomatoMood, ripeness: Float, sway: Float,
     drawEyes(mood, cx, cy, s, blink)
     drawMouth(mood, cx, cy + s * 0.1f, s)
     if (mood == TomatoMood.Focus) drawSweat(cx + s * 0.28f, cy - s * 0.15f + breath * s * 0.01f, s)
+    if (mood == TomatoMood.Sleepy) drawSleepZ(cx + s * 0.34f, cy - s * 0.3f, s, (sway + 1f) / 2f)
+    if (mood == TomatoMood.Happy) {
+        drawSparkle(Offset(cx - s * 0.4f, cy - s * 0.32f), s * 0.05f * (0.6f + 0.6f * hop), Color.White)
+        drawSparkle(Offset(cx + s * 0.42f, cy - s * 0.1f), s * 0.04f * (1.2f - 0.6f * hop), PeachGlow)
+    }
+}
+
+/** 졸린 토마토 머리 위로 떠오르는 두 개의 z. [t]는 0..1 반복 진행도. */
+private fun DrawScope.drawSleepZ(x: Float, y: Float, s: Float, t: Float) {
+    listOf(0f to 0.05f, 0.5f to 0.035f).forEach { (offset, size) ->
+        val p = (t + offset) % 1f
+        val z = s * size
+        val cx = x + p * s * 0.05f
+        val cy = y - p * s * 0.12f
+        val color = Color.White.copy(alpha = 0.9f * (1f - p))
+        val path = Path().apply {
+            moveTo(cx - z, cy - z)
+            lineTo(cx + z, cy - z)
+            lineTo(cx - z, cy + z)
+            lineTo(cx + z, cy + z)
+        }
+        drawPath(path, color, style = Stroke(width = s * 0.016f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    }
 }
 
 private fun DrawScope.drawEyes(mood: TomatoMood, cx: Float, cy: Float, s: Float, blink: Float) {
