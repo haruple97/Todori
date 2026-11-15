@@ -77,4 +77,35 @@
     <string name="notif_focus_running">Focusing now</string>
     <string name="notif_done_title">Todori is ripe!</string>
     <string name="notif_done_text">Focus complete! Nice work.</string>
+
+    <string name="customize_open">Customize</string>
+    <string name="customize_title">Customize</string>
+    <string name="customize_tab_friends">Friends</string>
+    <string name="customize_tab_themes">Themes</string>
+    <string name="customize_apply">Apply</string>
+    <string name="customize_in_use">In use</string>
+    <string name="customize_unlock">Unlock with Premium</string>
+    <string name="customize_locked">Locked</string>
+    <string name="customize_selected">Selected</string>
+    <string name="customize_dev_premium">Dev: Premium trial</string>
+
+    <string name="skin_tomato">Todori</string>
+    <string name="skin_strawberry">Berry</string>
+    <string name="skin_peach">Peachy</string>
+    <string name="skin_cherry">Cherry</string>
+    <string name="skin_lemon">Lemon</string>
+
+    <string name="theme_pink">Soft Pink</string>
+    <string name="theme_lavender">Lavender Cloud</string>
+    <string name="theme_mint">Mint Soda</string>
+    <string name="theme_midnight">Midnight Pastel</string>
+
+    <string name="premium_title">Premium only</string>
+    <string name="premium_body">Subscribe to use every friend, every theme, and flexible timer settings</string>
+    <string name="premium_benefit_friends">4 Todori friends</string>
+    <string name="premium_benefit_themes">3 themes</string>
+    <string name="premium_benefit_time">1-minute steps, up to 3 hours</string>
+    <string name="premium_subscribe">Learn about Premium</string>
+    <string name="premium_soon">Subscriptions are coming soon</string>
+    <string name="premium_close">Close</string>
 </resources>

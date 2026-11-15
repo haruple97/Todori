@@ -77,4 +77,35 @@
     <string name="notif_focus_running">집중하는 중이에요</string>
     <string name="notif_done_title">토돌이가 잘 익었어요!</string>
     <string name="notif_done_text">집중 완료! 수고했어요.</string>
+
+    <string name="customize_open">꾸미기</string>
+    <string name="customize_title">꾸미기</string>
+    <string name="customize_tab_friends">친구들</string>
+    <string name="customize_tab_themes">테마</string>
+    <string name="customize_apply">적용하기</string>
+    <string name="customize_in_use">사용 중</string>
+    <string name="customize_unlock">프리미엄으로 해제</string>
+    <string name="customize_locked">잠겨 있어요</string>
+    <string name="customize_selected">선택됨</string>
+    <string name="customize_dev_premium">개발용: 프리미엄 체험</string>
+
+    <string name="skin_tomato">토돌이</string>
+    <string name="skin_strawberry">딸기돌이</string>
+    <string name="skin_peach">복숭이</string>
+    <string name="skin_cherry">체리비</string>
+    <string name="skin_lemon">레몬이</string>
+
+    <string name="theme_pink">말랑 핑크</string>
+    <string name="theme_lavender">라벤더 구름</string>
+    <string name="theme_mint">민트 소다</string>
+    <string name="theme_midnight">한밤 파스텔</string>
+
+    <string name="premium_title">프리미엄 전용이에요</string>
+    <string name="premium_body">구독하면 모든 친구와 테마, 자유로운 시간 설정을 쓸 수 있어요</string>
+    <string name="premium_benefit_friends">토돌이 친구들 4종</string>
+    <string name="premium_benefit_themes">테마 3종</string>
+    <string name="premium_benefit_time">1분 단위, 최대 3시간 설정</string>
+    <string name="premium_subscribe">구독 알아보기</string>
+    <string name="premium_soon">구독은 곧 열릴 예정이에요</string>
+    <string name="premium_close">닫기</string>
 </resources>

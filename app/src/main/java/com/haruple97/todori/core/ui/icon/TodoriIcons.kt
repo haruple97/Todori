@@ -146,6 +146,71 @@ object TodoriIcons {
         }.build()
     }
 
+    /** 크고 작은 반짝이 두 개. 꾸미기 진입 버튼에 쓴다. */
+    val Sparkles: ImageVector by lazy {
+        ImageVector.Builder("Sparkles", 24.dp, 24.dp, 24f, 24f).apply {
+            path(fill = Ink, stroke = Ink, strokeLineWidth = 1.2f, strokeLineJoin = StrokeJoin.Round) {
+                moveTo(10f, 6f)
+                quadTo(10f, 13f, 3f, 13f)
+                quadTo(10f, 13f, 10f, 20f)
+                quadTo(10f, 13f, 17f, 13f)
+                quadTo(10f, 13f, 10f, 6f)
+                close()
+            }
+            path(fill = Ink, stroke = Ink, strokeLineWidth = 1f, strokeLineJoin = StrokeJoin.Round) {
+                moveTo(18f, 2.5f)
+                quadTo(18f, 6f, 14.5f, 6f)
+                quadTo(18f, 6f, 18f, 9.5f)
+                quadTo(18f, 6f, 21.5f, 6f)
+                quadTo(18f, 6f, 18f, 2.5f)
+                close()
+            }
+        }.build()
+    }
+
+    val Lock: ImageVector by lazy {
+        ImageVector.Builder("Lock", 24.dp, 24.dp, 24f, 24f).apply {
+            path(
+                stroke = Ink,
+                strokeLineWidth = 2.2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round
+            ) {
+                moveTo(8f, 10.5f)
+                verticalLineTo(8f)
+                arcTo(4f, 4f, 0f, false, true, 16f, 8f)
+                verticalLineTo(10.5f)
+            }
+            path(fill = Ink, stroke = Ink, strokeLineWidth = 1f, strokeLineJoin = StrokeJoin.Round) {
+                moveTo(7.5f, 10.5f)
+                horizontalLineTo(16.5f)
+                arcTo(2.5f, 2.5f, 0f, false, true, 19f, 13f)
+                verticalLineTo(18f)
+                arcTo(2.5f, 2.5f, 0f, false, true, 16.5f, 20.5f)
+                horizontalLineTo(7.5f)
+                arcTo(2.5f, 2.5f, 0f, false, true, 5f, 18f)
+                verticalLineTo(13f)
+                arcTo(2.5f, 2.5f, 0f, false, true, 7.5f, 10.5f)
+                close()
+            }
+        }.build()
+    }
+
+    val Check: ImageVector by lazy {
+        ImageVector.Builder("Check", 24.dp, 24.dp, 24f, 24f).apply {
+            path(
+                stroke = Ink,
+                strokeLineWidth = 3f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round
+            ) {
+                moveTo(5.5f, 12.5f)
+                lineTo(10f, 17f)
+                lineTo(18.5f, 7.5f)
+            }
+        }.build()
+    }
+
     val Heart: ImageVector by lazy {
         ImageVector.Builder("Heart", 24.dp, 24.dp, 24f, 24f).apply {
             path(fill = Ink, stroke = Ink, strokeLineWidth = 1.2f, strokeLineJoin = StrokeJoin.Round) {

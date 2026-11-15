@@ -90,14 +90,17 @@ fun JellyButton(
     text: String,
     icon: ImageVector,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    height: Dp = ButtonHeight,
+    enabled: Boolean = true
 ) {
     val source = remember { MutableInteractionSource() }
     val shape = RoundedCornerShape(50)
     Box(
         modifier = modifier
-            .height(ButtonHeight)
-            .jellyPress(source, onClick = onClick)
+            .height(height)
+            .alpha(if (enabled) 1f else 0.55f)
+            .jellyPress(source, enabled, onClick)
             .glow(shape)
             .clip(shape)
             .background(Brush.verticalGradient(listOf(todoriColors.accentLight, todoriColors.accentDeep)))

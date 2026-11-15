@@ -106,6 +106,7 @@ private class TimerActions(
 @Composable
 fun TimerScreen(
     onOpenRecord: () -> Unit,
+    onOpenCustomize: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TimerViewModel = hiltViewModel()
 ) {
@@ -189,13 +190,23 @@ fun TimerScreen(
             } else {
                 SinglePaneContent(ui, actions, bubble)
             }
-            GlassIconButton(
-                icon = TodoriIcons.Calendar,
-                contentDescription = stringResource(R.string.record_open),
-                onClick = onOpenRecord,
+            Row(
                 modifier = Modifier.align(Alignment.TopEnd),
-                size = 48.dp
-            )
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                GlassIconButton(
+                    icon = TodoriIcons.Sparkles,
+                    contentDescription = stringResource(R.string.customize_open),
+                    onClick = onOpenCustomize,
+                    size = 48.dp
+                )
+                GlassIconButton(
+                    icon = TodoriIcons.Calendar,
+                    contentDescription = stringResource(R.string.record_open),
+                    onClick = onOpenRecord,
+                    size = 48.dp
+                )
+            }
         }
         ConfettiBurst(trigger = ui.status == TimerStatus.Finished)
     }
@@ -231,7 +242,7 @@ private fun BoxScope.SinglePaneContent(ui: TimerUiState, actions: TimerActions, 
             .widthIn(max = MAX_CONTENT_WIDTH)
     ) {
         Spacer(Modifier.height(8.dp))
-        GreetingHeader(horizontalAlignment = Alignment.Start)
+        GreetingHeader(horizontalAlignment = Alignment.Start, modifier = Modifier.padding(end = 116.dp))
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
             val stageSize = (maxHeight - MIDDLE_FIXED_HEIGHT).coerceIn(MIN_STAGE, STAGE_MAX)
             Column(
