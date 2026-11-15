@@ -37,7 +37,9 @@
     <string name="widget_description">이번 주에 채운 토마토를 한눈에 봐요</string>
     <string name="widget_title">이번 주 토마토</string>
     <string name="widget_summary">%1$d개 · 연속 %2$d일</string>
-    <string name="widget_preview_summary">4개 · 연속 4일</string>
+    <string name="widget_week_label">이번 주</string>
+    <string name="widget_preview_count">4개</string>
+    <string name="widget_preview_streak">연속 4일</string>
     <string name="widget_small_title">이번 주 %d개</string>
     <string name="widget_small_streak">연속 %d일</string>
     <string name="widget_small_empty">첫 토마토를\n키워봐요</string>

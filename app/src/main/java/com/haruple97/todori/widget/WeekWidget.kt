@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -21,6 +23,7 @@ import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
+import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -32,13 +35,14 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
+import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
-import androidx.glance.color.ColorProvider
 import com.haruple97.todori.MainActivity
 import com.haruple97.todori.R
+import com.haruple97.todori.core.data.repository.SessionRepository
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -48,9 +52,11 @@ import java.time.ZoneId
 import java.time.format.TextStyle as JavaTextStyle
 import kotlinx.coroutines.flow.first
 
+// 응답형 크기: 2x1 / 2x2 / 4x1 / 4x2. 기본 배치는 가장 낮은 4x1이고, 키우면 자세한 레이아웃이 된다.
+private val MiniSize = DpSize(110.dp, 70.dp)
 private val SmallSize = DpSize(110.dp, 110.dp)
+private val CompactSize = DpSize(250.dp, 70.dp)
 private val WideSize = DpSize(250.dp, 110.dp)
-private val TallHeight = 150.dp
 
 private val TextPrimary = ColorProvider(day = Color(0xFF5A3A3F), night = Color(0xFFFFEDEF))
 private val TextSecondary = ColorProvider(day = Color(0xFF8A6A70), night = Color(0xFFD1B3BA))
@@ -59,12 +65,12 @@ private val Accent = ColorProvider(day = Color(0xFFE5607A), night = Color(0xFFFF
 @EntryPoint
 @InstallIn(SingletonComponent::class)
 interface WeekWidgetEntryPoint {
-    fun sessionRepository(): com.haruple97.todori.core.data.repository.SessionRepository
+    fun sessionRepository(): SessionRepository
 }
 
 /** 이번 주(일~토) 토마토 기록을 보여주는 홈 화면 위젯. 탭하면 기록 화면으로 이동한다. */
 class WeekWidget : GlanceAppWidget() {
-    override val sizeMode = SizeMode.Responsive(setOf(SmallSize, WideSize))
+    override val sizeMode = SizeMode.Responsive(setOf(MiniSize, SmallSize, CompactSize, WideSize))
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val repository = EntryPointAccessors
@@ -78,26 +84,34 @@ class WeekWidget : GlanceAppWidget() {
 @Composable
 private fun WeekWidgetContent(summary: WeekSummary) {
     val context = LocalContext.current
+    val size = LocalSize.current
     val openRecord = Intent(Intent.ACTION_VIEW, "todori://record".toUri()).setClass(context, MainActivity::class.java)
+    val wide = size.width >= CompactSize.width
+    val tall = size.height >= SmallSize.height
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
             .appWidgetBackground()
             .background(ImageProvider(R.drawable.bg_widget))
             .clickable(actionStartActivity(openRecord))
-            .padding(12.dp)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        contentAlignment = Alignment.Center
     ) {
-        if (LocalSize.current.width >= WideSize.width) WideLayout(summary) else SmallLayout(summary)
+        when {
+            wide && tall -> WideLayout(summary)
+            wide -> CompactLayout(summary)
+            tall -> SmallLayout(summary)
+            else -> MiniLayout(summary)
+        }
     }
 }
 
+/** 4x2 이상: 제목·요약 한 줄 + 7일. */
 @Composable
 private fun WideLayout(summary: WeekSummary) {
     val context = LocalContext.current
-    val locale = context.resources.configuration.locales[0]
-    val tall = LocalSize.current.height >= TallHeight
     Column(GlanceModifier.fillMaxSize()) {
-        Row(GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Row(GlanceModifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = context.getString(R.string.widget_title),
                 style = TextStyle(color = TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold),
@@ -111,20 +125,44 @@ private fun WideLayout(summary: WeekSummary) {
         // 위젯이 세로로 커져도 7일 줄이 가운데에 모이도록 남는 공간 안에서 세로 중앙 정렬한다.
         Box(GlanceModifier.fillMaxWidth().defaultWeight(), contentAlignment = Alignment.Center) {
             Row(GlanceModifier.fillMaxWidth()) {
-                summary.days.forEach { day ->
-                    DayCell(day, day.date.dayOfWeek.getDisplayName(JavaTextStyle.SHORT, locale), tall)
-                }
+                summary.days.forEach { day -> DayCell(day, labelSize = 11.sp, tomato = 26.dp, verticalPadding = 6.dp) }
             }
         }
     }
 }
 
+/** 4x1: 왼쪽에 이번 주 요약, 오른쪽에 7일. 가장 낮은 기본 크기. */
 @Composable
-private fun RowScope.DayCell(day: WeekDay, label: String, tall: Boolean) {
+private fun CompactLayout(summary: WeekSummary) {
     val context = LocalContext.current
-    val scale = if (tall) 1.3f else 1f
+    Row(GlanceModifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+        Column(
+            modifier = GlanceModifier.width(58.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = context.getString(R.string.widget_week_label),
+                style = TextStyle(color = TextSecondary, fontSize = 10.sp)
+            )
+            Text(
+                text = context.getString(R.string.count_format, summary.total),
+                style = TextStyle(color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            )
+            Text(
+                text = context.getString(R.string.widget_small_streak, summary.streak),
+                style = TextStyle(color = Accent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            )
+        }
+        summary.days.forEach { day -> DayCell(day, labelSize = 10.sp, tomato = 22.dp, verticalPadding = 3.dp) }
+    }
+}
+
+@Composable
+private fun RowScope.DayCell(day: WeekDay, labelSize: TextUnit, tomato: Dp, verticalPadding: Dp) {
+    val context = LocalContext.current
+    val label = day.date.dayOfWeek.getDisplayName(JavaTextStyle.SHORT, context.resources.configuration.locales[0])
     // 폭은 가중치로 균등 분배하고 높이는 내용에 맞춘다(fillMaxSize를 쓰면 한 칸이 줄 전체를 차지한다).
-    val base = GlanceModifier.defaultWeight().padding(vertical = 6.dp)
+    val base = GlanceModifier.defaultWeight().padding(vertical = verticalPadding)
     val cellModifier = if (day.isToday) base.background(ImageProvider(R.drawable.bg_widget_today)) else base
     Column(
         modifier = cellModifier,
@@ -135,16 +173,16 @@ private fun RowScope.DayCell(day: WeekDay, label: String, tall: Boolean) {
             text = label,
             style = TextStyle(
                 color = if (day.isToday) Accent else TextSecondary,
-                fontSize = (if (tall) 12 else 11).sp,
+                fontSize = labelSize,
                 fontWeight = if (day.isToday) FontWeight.Bold else FontWeight.Normal
             )
         )
-        Spacer(GlanceModifier.height(3.dp))
-        Box(GlanceModifier.size(28.dp * scale), contentAlignment = Alignment.Center) {
+        Spacer(GlanceModifier.height(2.dp))
+        Box(GlanceModifier.size(tomato + 2.dp), contentAlignment = Alignment.Center) {
             val (drawable, size) = when {
-                day.count > 0 -> R.drawable.widget_tomato to 26.dp * scale
-                day.isFuture -> R.drawable.widget_dot_future to 18.dp * scale
-                else -> R.drawable.widget_tomato_empty to 22.dp * scale
+                day.count > 0 -> R.drawable.widget_tomato to tomato
+                day.isFuture -> R.drawable.widget_dot_future to tomato * 0.7f
+                else -> R.drawable.widget_tomato_empty to tomato * 0.85f
             }
             Image(
                 provider = ImageProvider(drawable),
@@ -160,17 +198,22 @@ private fun RowScope.DayCell(day: WeekDay, label: String, tall: Boolean) {
 private fun CountBadge(count: Int) {
     Box(GlanceModifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
         Box(
-            modifier = GlanceModifier.size(13.dp).background(ImageProvider(R.drawable.bg_widget_badge)),
+            modifier = GlanceModifier.size(12.dp).background(ImageProvider(R.drawable.bg_widget_badge)),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = if (count > 9) "9+" else count.toString(),
-                style = TextStyle(color = ColorProvider(day = Color.White, night = Color.White), fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                style = TextStyle(
+                    color = ColorProvider(day = Color.White, night = Color.White),
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Bold
+                )
             )
         }
     }
 }
 
+/** 2x2: 토마토 하나와 이번 주 개수·연속 일수. */
 @Composable
 private fun SmallLayout(summary: WeekSummary) {
     val context = LocalContext.current
@@ -196,6 +239,30 @@ private fun SmallLayout(summary: WeekSummary) {
                 )
             )
         } else {
+            Text(
+                text = context.getString(R.string.widget_small_title, summary.total),
+                style = TextStyle(color = TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            )
+            Text(
+                text = context.getString(R.string.widget_small_streak, summary.streak),
+                style = TextStyle(color = Accent, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            )
+        }
+    }
+}
+
+/** 2x1: 토마토 옆에 이번 주 개수와 연속 일수. */
+@Composable
+private fun MiniLayout(summary: WeekSummary) {
+    val context = LocalContext.current
+    Row(GlanceModifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+        Image(
+            provider = ImageProvider(R.drawable.widget_tomato),
+            contentDescription = null,
+            modifier = GlanceModifier.size(34.dp)
+        )
+        Spacer(GlanceModifier.width(8.dp))
+        Column {
             Text(
                 text = context.getString(R.string.widget_small_title, summary.total),
                 style = TextStyle(color = TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold)

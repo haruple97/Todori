@@ -37,7 +37,9 @@
     <string name="widget_description">See the tomatoes you filled this week at a glance</string>
     <string name="widget_title">This week</string>
     <string name="widget_summary">%1$d · %2$d-day streak</string>
-    <string name="widget_preview_summary">4 · 4-day streak</string>
+    <string name="widget_week_label">This week</string>
+    <string name="widget_preview_count">4</string>
+    <string name="widget_preview_streak">4-day streak</string>
     <string name="widget_small_title">%d this week</string>
     <string name="widget_small_streak">%d-day streak</string>
     <string name="widget_small_empty">Grow your first\ntomato</string>
