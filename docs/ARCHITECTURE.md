@@ -29,6 +29,14 @@
 - 삭제: 기록 줄의 휴지통으로 즉시 삭제하고 되돌리기 스낵바를 띄운다(확인 창 없음). 그날 2개 이상이면 "모두 삭제"가 있고 이것만 확인 창을 거친다. 되돌리기는 같은 id로 다시 넣는다(`RecordViewModel.undoDelete`).
 - 삭제·되돌리기도 완료 기록의 개수/마지막 시각 변화로 감지해 위젯이 갱신된다(`updateAll`은 각각 별도 코루틴으로 실행).
 
+## 유료 기능 (구독 연동 전 구조)
+- 유료 여부는 `PremiumRepository.isPremium` 하나만 본다. 지금은 `LocalPremiumRepository`(디버그 빌드에서만 꾸미기 화면의 개발용 스위치로 켬, 릴리스는 항상 false)이며, 결제를 붙이면 Play Billing 구현으로 교체한다.
+- **꾸미기**: `SkinId`(토돌이·딸기돌이·복숭이·체리비·레몬이)와 `ThemeId`(말랑 핑크·라벤더 구름·민트 소다·한밤 파스텔). 무료는 토돌이·말랑 핑크뿐이다. 선택값은 `SettingsRepository`에 저장하고, 구독이 끊기면 `Appearance.effective()`가 화면에서만 무료 기본값으로 돌린다(저장값은 유지).
+- 색은 `TodoriColors`(테마별 밝음/어두움)를 `todoriColors`로 읽는다. 하드코딩한 핑크 상수를 새로 쓰지 말 것. 위젯과 앱 아이콘, 알림은 아직 기본 핑크 고정이다.
+- 캐릭터는 `TomatoCharacter(skin = LocalSkin.current)`가 스킨별 몸 모양·장식·익는 색을 그린다. 새 친구는 `SkinId`와 `SkinSpec`/`drawBody`에 추가한다.
+- **시간 설정**: 무료는 5~60분(5분 단위), 프리미엄은 시간 숫자 아래 "직접 설정" 시트에서 1~180분(1분 단위). 저장은 사용자가 정한 값 그대로 두고, 화면과 시작에는 `normalizedMinutes(saved, premium)`로 권한에 맞게 정리한 값을 쓴다. 1시간 이상은 `h:mm:ss`로 표시한다.
+- 잠긴 기능은 `PremiumGateSheet`(결제 연결 전에는 "곧 열려요")를 연다.
+
 ## 시간 조절 / 인앱 리뷰 / 앱 이름
 - 시간은 토마토를 위아래로 쓸거나, 오른쪽 `DialRail` 슬라이더를 끌거나 눈금을 눌러서 바꾼다(터치 영역 44dp).
 - 인앱 리뷰(`core/review`, Play In-App Review): 첫 집중이 끝나 기록이 1개가 된 직후 2초 뒤 한 번만 요청한다. 요청 흐름이 성공했을 때만 `review_requested`를 저장한다. Play 스토어로 설치되지 않은 빌드에서는 동작하지 않고, 노출 여부와 횟수는 Google 쿼터가 정한다.

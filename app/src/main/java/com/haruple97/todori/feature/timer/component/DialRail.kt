@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.haruple97.todori.R
 import com.haruple97.todori.core.designsystem.theme.todoriColors
 import com.haruple97.todori.feature.timer.DialStepMinutes
+import com.haruple97.todori.feature.timer.nearestIndex
 import kotlin.math.roundToInt
 
 private val RailWidth = 14.dp
@@ -43,7 +44,7 @@ fun DialRail(
     onMinutesChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val index = DialStepMinutes.indexOf(minutes).coerceAtLeast(0)
+    val index = nearestIndex(minutes)
     val position by animateFloatAsState(
         targetValue = index.toFloat(),
         animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessMedium),

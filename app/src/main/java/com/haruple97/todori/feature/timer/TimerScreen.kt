@@ -10,6 +10,8 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -29,6 +31,10 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import com.haruple97.todori.core.ui.PremiumGateSheet
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -86,6 +92,7 @@ import com.haruple97.todori.core.ui.drawHeart
 import com.haruple97.todori.core.ui.icon.TodoriIcons
 import com.haruple97.todori.feature.timer.component.DialRail
 import com.haruple97.todori.feature.timer.component.GreetingHeader
+import com.haruple97.todori.feature.timer.component.TimeSheet
 import com.haruple97.todori.feature.timer.component.TomatoDial
 import kotlin.math.PI
 import kotlin.math.cos
@@ -100,7 +107,8 @@ private class TimerActions(
     val onResume: () -> Unit,
     val onGiveUp: () -> Unit,
     val onOneMore: () -> Unit,
-    val onStop: () -> Unit
+    val onStop: () -> Unit,
+    val onCustomTime: () -> Unit
 )
 
 @Composable
@@ -115,6 +123,8 @@ fun TimerScreen(
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
     var showGiveUp by rememberSaveable { mutableStateOf(false) }
+    var showTimeSheet by rememberSaveable { mutableStateOf(false) }
+    var showPremiumGate by rememberSaveable { mutableStateOf(false) }
 
     // 타이머가 돌아가는 동안에는 화면이 꺼지지 않게 한다. 일시정지·완료·화면 이탈 시 즉시 해제한다.
     val view = LocalView.current
@@ -168,7 +178,9 @@ fun TimerScreen(
         onResume = viewModel::resume,
         onGiveUp = { showGiveUp = true },
         onOneMore = viewModel::start,
-        onStop = viewModel::stop
+        onStop = viewModel::stop,
+        // 프리미엄이면 1분 단위 설정 시트, 아니면 프리미엄 안내 시트
+        onCustomTime = { if (ui.isPremium) showTimeSheet = true else showPremiumGate = true }
     )
 
     val bubble = bubbleText(ui)
@@ -210,6 +222,18 @@ fun TimerScreen(
         }
         ConfettiBurst(trigger = ui.status == TimerStatus.Finished)
     }
+
+    if (showTimeSheet) {
+        TimeSheet(
+            minutes = ui.focusMinutes,
+            onDismiss = { showTimeSheet = false },
+            onConfirm = {
+                viewModel.setFocusMinutes(it)
+                showTimeSheet = false
+            }
+        )
+    }
+    if (showPremiumGate) PremiumGateSheet(onDismiss = { showPremiumGate = false })
 
     if (showGiveUp) {
         AlertDialog(
@@ -258,7 +282,7 @@ private fun BoxScope.SinglePaneContent(ui: TimerUiState, actions: TimerActions, 
                 Spacer(Modifier.height(14.dp))
                 TomatoStage(ui, stageSize = stageSize, onMinutesChange = actions.onMinutesChange)
                 Spacer(Modifier.height(8.dp))
-                TimeAndHint(ui)
+                TimeAndHint(ui, actions.onCustomTime)
                 Spacer(Modifier.height(12.dp))
             }
         }
@@ -293,7 +317,7 @@ private fun TwoPaneContent(ui: TimerUiState, actions: TimerActions, bubble: Stri
         ) {
             GreetingHeader(horizontalAlignment = Alignment.CenterHorizontally)
             Spacer(Modifier.height(16.dp))
-            TimeAndHint(ui)
+            TimeAndHint(ui, actions.onCustomTime)
             Spacer(Modifier.height(24.dp))
             Controls(ui.status, actions)
         }
@@ -301,7 +325,7 @@ private fun TwoPaneContent(ui: TimerUiState, actions: TimerActions, bubble: Stri
 }
 
 @Composable
-private fun TimeAndHint(ui: TimerUiState) {
+private fun TimeAndHint(ui: TimerUiState, onCustomTime: () -> Unit) {
     Text(
         text = timeText(ui),
         style = MaterialTheme.typography.displayLarge,
@@ -315,6 +339,38 @@ private fun TimeAndHint(ui: TimerUiState) {
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
             textAlign = TextAlign.Center
         )
+        Spacer(Modifier.height(10.dp))
+        CustomTimeChip(locked = !ui.isPremium, onClick = onCustomTime)
+    }
+}
+
+/** 1분 단위·60분 초과 설정으로 들어가는 칩. 프리미엄이 아니면 자물쇠가 붙는다. */
+@Composable
+private fun CustomTimeChip(locked: Boolean, onClick: () -> Unit) {
+    val colors = todoriColors
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(50),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.75f),
+        border = BorderStroke(1.5.dp, colors.accentLight)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(
+                imageVector = if (locked) TodoriIcons.Lock else TodoriIcons.Sparkles,
+                contentDescription = null,
+                tint = colors.accentDeep,
+                modifier = Modifier.size(16.dp)
+            )
+            Text(
+                stringResource(R.string.time_custom),
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp, lineHeight = 18.sp),
+                color = colors.accentDeep
+            )
+        }
     }
 }
 
@@ -496,7 +552,7 @@ private val MAX_CONTENT_WIDTH = 480.dp
 private val BUBBLE_RESERVED_HEIGHT = 84.dp
 
 /** 가운데 영역에서 토마토를 뺀 나머지(말풍선·간격·시간·안내문)가 차지하는 대략의 높이. */
-private val MIDDLE_FIXED_HEIGHT = 200.dp
+private val MIDDLE_FIXED_HEIGHT = 246.dp
 private const val DIAL_RATIO = 0.76f
 private const val TOMATO_RATIO = 0.72f
 private const val RAIL_RATIO = 0.62f

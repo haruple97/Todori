@@ -108,4 +108,13 @@
     <string name="premium_subscribe">Learn about Premium</string>
     <string name="premium_soon">Subscriptions are coming soon</string>
     <string name="premium_close">Close</string>
+
+    <string name="time_custom">Set exact time</string>
+    <string name="time_sheet_title">Set exact time</string>
+    <string name="time_sheet_hint">Pick any minute, up to 3 hours</string>
+    <string name="time_confirm">Set this time</string>
+    <string name="time_minus">1 minute less</string>
+    <string name="time_plus">1 minute more</string>
+    <string name="time_slider">Focus time</string>
+    <string name="minutes_chip_format">%dm</string>
 </resources>

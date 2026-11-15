@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.haruple97.todori.core.data.repository.SessionRepository
 import com.haruple97.todori.core.data.repository.SettingsRepository
 import com.haruple97.todori.core.model.TimerSettings
+import com.haruple97.todori.core.premium.PremiumRepository
 import com.haruple97.todori.core.timer.TimerEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.Instant
@@ -24,10 +25,12 @@ import kotlinx.coroutines.launch
 class TimerViewModel @Inject constructor(
     private val engine: TimerEngine,
     private val settingsRepository: SettingsRepository,
-    sessionRepository: SessionRepository
+    sessionRepository: SessionRepository,
+    premiumRepository: PremiumRepository
 ) : ViewModel() {
     // 다이얼 조작이 DataStore 왕복에 끌려다니지 않도록 로컬 값을 먼저 반영하고 저장은 뒤따른다.
-    private val focusMinutes = MutableStateFlow(TimerSettings().focusMinutes)
+    // 저장된 값 그대로이고, 화면과 시작에는 지금 권한에 맞게 정리한 값(normalizedMinutes)을 쓴다.
+    private val savedMinutes = MutableStateFlow(TimerSettings().focusMinutes)
 
     /** (오늘 횟수, 전체 횟수). 말풍선 문구를 상황에 맞게 고르는 데 쓴다. */
     private val sessionStats = sessionRepository.sessions.map { sessions ->
@@ -37,10 +40,17 @@ class TimerViewModel @Inject constructor(
         todayCount to sessions.size
     }
 
-    val uiState: StateFlow<TimerUiState> = combine(engine.state, focusMinutes, sessionStats) { timer, focus, stats ->
+    val uiState: StateFlow<TimerUiState> = combine(
+        engine.state,
+        combine(savedMinutes, premiumRepository.isPremium) { saved, premium ->
+            normalizedMinutes(saved, premium) to premium
+        },
+        sessionStats
+    ) { timer, (focus, premium), stats ->
         TimerUiState(
             status = timer.status,
             focusMinutes = focus,
+            isPremium = premium,
             totalMillis = timer.totalMillis,
             remainingMillis = timer.remainingMillis,
             todayCount = stats.first,
@@ -50,7 +60,7 @@ class TimerViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            focusMinutes.value = snapMinutes(settingsRepository.settings.first().focusMinutes)
+            savedMinutes.value = settingsRepository.settings.first().focusMinutes
             engine.restore()
         }
     }
@@ -63,7 +73,7 @@ class TimerViewModel @Inject constructor(
         viewModelScope.launch { settingsRepository.markReviewRequested() }
     }
 
-    fun start() = engine.start(focusMinutes.value * MILLIS_PER_MINUTE)
+    fun start() = engine.start(uiState.value.focusMinutes * MILLIS_PER_MINUTE)
 
     fun pause() = engine.pause()
 
@@ -72,7 +82,7 @@ class TimerViewModel @Inject constructor(
     fun stop() = engine.cancel()
 
     fun setFocusMinutes(minutes: Int) {
-        focusMinutes.value = minutes
+        savedMinutes.value = minutes
         viewModelScope.launch { settingsRepository.update(TimerSettings(minutes)) }
     }
 

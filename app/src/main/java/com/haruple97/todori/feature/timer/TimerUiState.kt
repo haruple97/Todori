@@ -5,6 +5,8 @@ import com.haruple97.todori.core.model.TimerStatus
 data class TimerUiState(
     val status: TimerStatus = TimerStatus.Idle,
     val focusMinutes: Int = 25,
+    /** 프리미엄이면 1분 단위·60분 초과 시간을 직접 정할 수 있다. */
+    val isPremium: Boolean = false,
     val totalMillis: Long = 0L,
     val remainingMillis: Long = 0L,
     /** 오늘 끝낸 집중 횟수. 말풍선 문구를 고르는 데만 쓴다. */

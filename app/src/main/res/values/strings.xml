@@ -108,4 +108,13 @@
     <string name="premium_subscribe">구독 알아보기</string>
     <string name="premium_soon">구독은 곧 열릴 예정이에요</string>
     <string name="premium_close">닫기</string>
+
+    <string name="time_custom">직접 설정</string>
+    <string name="time_sheet_title">시간 직접 설정</string>
+    <string name="time_sheet_hint">1분 단위로 최대 3시간까지 정할 수 있어요</string>
+    <string name="time_confirm">이 시간으로 설정</string>
+    <string name="time_minus">1분 줄이기</string>
+    <string name="time_plus">1분 늘리기</string>
+    <string name="time_slider">집중 시간</string>
+    <string name="minutes_chip_format">%d분</string>
 </resources>

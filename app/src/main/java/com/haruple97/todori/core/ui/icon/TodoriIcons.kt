@@ -211,6 +211,26 @@ object TodoriIcons {
         }.build()
     }
 
+    val Plus: ImageVector by lazy {
+        ImageVector.Builder("Plus", 24.dp, 24.dp, 24f, 24f).apply {
+            path(stroke = Ink, strokeLineWidth = 2.8f, strokeLineCap = StrokeCap.Round) {
+                moveTo(12f, 6f)
+                verticalLineTo(18f)
+                moveTo(6f, 12f)
+                horizontalLineTo(18f)
+            }
+        }.build()
+    }
+
+    val Minus: ImageVector by lazy {
+        ImageVector.Builder("Minus", 24.dp, 24.dp, 24f, 24f).apply {
+            path(stroke = Ink, strokeLineWidth = 2.8f, strokeLineCap = StrokeCap.Round) {
+                moveTo(6f, 12f)
+                horizontalLineTo(18f)
+            }
+        }.build()
+    }
+
     val Heart: ImageVector by lazy {
         ImageVector.Builder("Heart", 24.dp, 24.dp, 24f, 24f).apply {
             path(fill = Ink, stroke = Ink, strokeLineWidth = 1.2f, strokeLineJoin = StrokeJoin.Round) {
