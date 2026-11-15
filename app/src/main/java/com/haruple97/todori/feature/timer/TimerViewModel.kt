@@ -57,6 +57,12 @@ class TimerViewModel @Inject constructor(
 
     fun refresh() = engine.refresh()
 
+    suspend fun isReviewRequested(): Boolean = settingsRepository.isReviewRequested()
+
+    fun markReviewRequested() {
+        viewModelScope.launch { settingsRepository.markReviewRequested() }
+    }
+
     fun start() = engine.start(focusMinutes.value * MILLIS_PER_MINUTE)
 
     fun pause() = engine.pause()

@@ -71,6 +71,8 @@ import com.haruple97.todori.R
 import com.haruple97.todori.core.common.formatRemainingTime
 import com.haruple97.todori.core.designsystem.BackgroundTone
 import com.haruple97.todori.core.designsystem.TodoriBackground
+import com.haruple97.todori.core.review.findActivity
+import com.haruple97.todori.core.review.requestInAppReview
 import com.haruple97.todori.core.designsystem.theme.JellyPinkDeep
 import com.haruple97.todori.core.designsystem.theme.JellyPinkLight
 import com.haruple97.todori.core.designsystem.theme.PeachGlow
@@ -133,6 +135,16 @@ fun TimerScreen(
             }
         }
         if (ui.status == TimerStatus.Finished) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+    }
+
+    // 첫 집중을 끝낸 직후 한 번만 인앱 리뷰를 요청한다. 완료 기록이 저장돼 totalCount가 1이 된 뒤에 동작하고,
+    // 파티클·완료 연출을 먼저 볼 수 있게 잠시 기다린다. 요청이 성공한 경우에만 '요청함'으로 표시한다.
+    LaunchedEffect(ui.status, ui.totalCount) {
+        if (ui.status != TimerStatus.Finished || ui.totalCount != 1) return@LaunchedEffect
+        if (viewModel.isReviewRequested()) return@LaunchedEffect
+        delay(REVIEW_DELAY_MILLIS)
+        val activity = context.findActivity() ?: return@LaunchedEffect
+        if (requestInAppReview(activity)) viewModel.markReviewRequested()
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -308,6 +320,7 @@ private fun TomatoStage(ui: TimerUiState, stageSize: Dp, onMinutesChange: (Int) 
             )
             DialRail(
                 minutes = ui.focusMinutes,
+                onMinutesChange = onMinutesChange,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .height(stageSize * RAIL_RATIO)
@@ -478,3 +491,4 @@ private const val DIAL_RATIO = 0.76f
 private const val TOMATO_RATIO = 0.72f
 private const val RAIL_RATIO = 0.62f
 private const val TICK_MILLIS = 250L
+private const val REVIEW_DELAY_MILLIS = 2_000L
