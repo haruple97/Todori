@@ -5,25 +5,18 @@
     <string name="status_idle">오늘도 같이 집중해볼까요?</string>
     <string name="status_focus">토돌이가 익어가는 중…</string>
     <string name="status_paused">잠깐 쉬는 중이에요</string>
-    <string name="status_break">푹 쉬어요, 곧 다시 만나요</string>
-    <string name="status_done_focus">짝짝! 잘 익었어요</string>
-    <string name="status_done_break">충분히 쉬었어요!</string>
+    <string name="status_done">짝짝! 잘 익었어요</string>
 
     <string name="minutes_format">%d분</string>
-    <string name="minutes_chip_format">%d분</string>
     <string name="done_label">완료!</string>
     <string name="dial_hint">토마토를 위아래로 쓸어서 시간을 키워요</string>
     <string name="dial_increase">시간 늘리기</string>
     <string name="dial_decrease">시간 줄이기</string>
-    <string name="break_label">휴식</string>
-    <string name="break_increase">휴식 시간 늘리기</string>
-    <string name="break_decrease">휴식 시간 줄이기</string>
 
     <string name="btn_start">시작하기</string>
     <string name="btn_pause">잠깐 멈춤</string>
     <string name="btn_resume">다시 시작</string>
     <string name="btn_give_up">포기하기</string>
-    <string name="btn_start_break">휴식 시작</string>
     <string name="btn_one_more">한 번 더!</string>
     <string name="btn_stop">그만하기</string>
 
@@ -35,9 +28,6 @@
     <string name="notif_channel_progress">진행 중인 타이머</string>
     <string name="notif_channel_done">타이머 완료</string>
     <string name="notif_focus_running">집중하는 중이에요</string>
-    <string name="notif_break_running">휴식하는 중이에요</string>
-    <string name="notif_focus_done_title">토돌이가 잘 익었어요!</string>
-    <string name="notif_focus_done_text">집중 완료! 이제 쉬어볼까요?</string>
-    <string name="notif_break_done_title">휴식 끝!</string>
-    <string name="notif_break_done_text">다시 집중할 시간이에요.</string>
+    <string name="notif_done_title">토돌이가 잘 익었어요!</string>
+    <string name="notif_done_text">집중 완료! 수고했어요.</string>
 </resources>

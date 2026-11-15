@@ -3,7 +3,6 @@ package com.haruple97.todori.feature.timer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.haruple97.todori.core.data.repository.SettingsRepository
-import com.haruple97.todori.core.model.TimerPhase
 import com.haruple97.todori.core.model.TimerSettings
 import com.haruple97.todori.core.timer.TimerEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,14 +22,11 @@ class TimerViewModel @Inject constructor(
 ) : ViewModel() {
     // 다이얼 조작이 DataStore 왕복에 끌려다니지 않도록 로컬 값을 먼저 반영하고 저장은 뒤따른다.
     private val focusMinutes = MutableStateFlow(TimerSettings().focusMinutes)
-    private val breakMinutes = MutableStateFlow(TimerSettings().breakMinutes)
 
-    val uiState: StateFlow<TimerUiState> = combine(engine.state, focusMinutes, breakMinutes) { timer, focus, rest ->
+    val uiState: StateFlow<TimerUiState> = combine(engine.state, focusMinutes) { timer, focus ->
         TimerUiState(
-            phase = timer.phase,
             status = timer.status,
             focusMinutes = focus,
-            breakMinutes = rest,
             totalMillis = timer.totalMillis,
             remainingMillis = timer.remainingMillis
         )
@@ -38,18 +34,14 @@ class TimerViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val saved = settingsRepository.settings.first()
-            focusMinutes.value = saved.focusMinutes
-            breakMinutes.value = saved.breakMinutes
+            focusMinutes.value = snapMinutes(settingsRepository.settings.first().focusMinutes)
             engine.restore()
         }
     }
 
     fun refresh() = engine.refresh()
 
-    fun startFocus() = engine.start(TimerPhase.Focus, focusMinutes.value * MILLIS_PER_MINUTE)
-
-    fun startBreak() = engine.start(TimerPhase.Break, breakMinutes.value * MILLIS_PER_MINUTE)
+    fun start() = engine.start(focusMinutes.value * MILLIS_PER_MINUTE)
 
     fun pause() = engine.pause()
 
@@ -59,17 +51,7 @@ class TimerViewModel @Inject constructor(
 
     fun setFocusMinutes(minutes: Int) {
         focusMinutes.value = minutes
-        persistSettings()
-    }
-
-    fun setBreakMinutes(minutes: Int) {
-        breakMinutes.value = minutes
-        persistSettings()
-    }
-
-    private fun persistSettings() {
-        val settings = TimerSettings(focusMinutes.value, breakMinutes.value)
-        viewModelScope.launch { settingsRepository.update(settings) }
+        viewModelScope.launch { settingsRepository.update(TimerSettings(minutes)) }
     }
 
     private companion object {

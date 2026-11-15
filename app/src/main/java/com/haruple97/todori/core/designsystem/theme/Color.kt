@@ -7,14 +7,12 @@ val CreamBackground = Color(0xFFFFF5F7)
 val CoralPink = Color(0xFFFF8FA3)
 val PeachCard = Color(0xFFFFE3E0)
 val CocoaText = Color(0xFF5A3A3F)
-val MintCream = Color(0xFFEFFAF3)
 
 // Dark
 val CreamBackgroundDark = Color(0xFF2A1E22)
 val CoralPinkDark = Color(0xFFFFB3C1)
 val PeachCardDark = Color(0xFF3F2C32)
 val CocoaTextDark = Color(0xFFFFEDEF)
-val MintCreamDark = Color(0xFF1F2D26)
 
 // Character (theme independent)
 val TomatoRed = Color(0xFFFF6B6B)

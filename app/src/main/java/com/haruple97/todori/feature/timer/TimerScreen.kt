@@ -5,17 +5,14 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -54,16 +51,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.haruple97.todori.R
 import com.haruple97.todori.core.common.formatRemainingTime
-import com.haruple97.todori.core.designsystem.theme.MintCream
-import com.haruple97.todori.core.designsystem.theme.MintCreamDark
-import com.haruple97.todori.core.model.TimerPhase
 import com.haruple97.todori.core.model.TimerStatus
 import com.haruple97.todori.core.ui.ConfettiBurst
-import com.haruple97.todori.core.ui.PresetChip
 import com.haruple97.todori.core.ui.SoftButton
 import com.haruple97.todori.core.ui.TomatoCharacter
 import com.haruple97.todori.core.ui.TomatoMood
-import com.haruple97.todori.feature.timer.component.BreakStepper
 import com.haruple97.todori.feature.timer.component.TomatoDial
 import kotlinx.coroutines.delay
 
@@ -91,24 +83,16 @@ fun TimerScreen(
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
-        viewModel.startFocus()
+        viewModel.start()
     }
     fun requestStart() {
         val needsPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
             PackageManager.PERMISSION_GRANTED
-        if (needsPermission) permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) else viewModel.startFocus()
+        if (needsPermission) permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) else viewModel.start()
     }
 
-    val isBreak = ui.phase == TimerPhase.Break && ui.status != TimerStatus.Idle
-    val restBackground = if (isSystemInDarkTheme()) MintCreamDark else MintCream
-    val background by animateColorAsState(
-        targetValue = if (isBreak) restBackground else MaterialTheme.colorScheme.background,
-        animationSpec = tween(600),
-        label = "background"
-    )
-
-    Box(modifier.fillMaxSize().background(background)) {
+    Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -140,19 +124,6 @@ fun TimerScreen(
             )
             if (ui.status == TimerStatus.Idle) {
                 Spacer(Modifier.height(12.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    PresetMinutes.forEach { minutes ->
-                        PresetChip(
-                            label = stringResource(R.string.minutes_chip_format, minutes),
-                            selected = ui.focusMinutes == minutes,
-                            onClick = { viewModel.setFocusMinutes(minutes) },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-                Spacer(Modifier.height(16.dp))
-                BreakStepper(minutes = ui.breakMinutes, onMinutesChange = viewModel::setBreakMinutes)
-                Spacer(Modifier.height(12.dp))
                 Text(
                     text = stringResource(R.string.dial_hint),
                     style = MaterialTheme.typography.bodyLarge,
@@ -163,13 +134,12 @@ fun TimerScreen(
             Spacer(Modifier.weight(1f))
 
             Controls(
-                ui = ui,
+                status = ui.status,
                 onStart = ::requestStart,
                 onPause = viewModel::pause,
                 onResume = viewModel::resume,
                 onGiveUp = { showGiveUp = true },
-                onStartBreak = viewModel::startBreak,
-                onOneMore = viewModel::startFocus,
+                onOneMore = viewModel::start,
                 onStop = viewModel::stop
             )
             Spacer(Modifier.height(24.dp))
@@ -207,8 +177,8 @@ private fun TomatoStage(ui: TimerUiState, onMinutesChange: (Int) -> Unit) {
         } else {
             ProgressRing(ui.progress, Modifier.size(STAGE_SIZE))
             TomatoCharacter(
-                mood = moodOf(ui),
-                ripeness = ripenessOf(ui),
+                mood = moodOf(ui.status),
+                ripeness = if (ui.status == TimerStatus.Finished) 1f else ui.progress,
                 modifier = Modifier.size(210.dp)
             )
         }
@@ -233,18 +203,17 @@ private fun ProgressRing(progress: Float, modifier: Modifier = Modifier) {
 
 @Composable
 private fun Controls(
-    ui: TimerUiState,
+    status: TimerStatus,
     onStart: () -> Unit,
     onPause: () -> Unit,
     onResume: () -> Unit,
     onGiveUp: () -> Unit,
-    onStartBreak: () -> Unit,
     onOneMore: () -> Unit,
     onStop: () -> Unit
 ) {
     val wide = Modifier.fillMaxWidth()
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        when (ui.status) {
+        when (status) {
             TimerStatus.Idle -> SoftButton(stringResource(R.string.btn_start), onStart, wide)
             TimerStatus.Running -> {
                 SoftButton(stringResource(R.string.btn_pause), onPause, wide)
@@ -255,33 +224,25 @@ private fun Controls(
                 SoftButton(stringResource(R.string.btn_give_up), onGiveUp, wide, primary = false)
             }
             TimerStatus.Finished -> {
-                if (ui.phase == TimerPhase.Focus) {
-                    SoftButton(stringResource(R.string.btn_start_break), onStartBreak, wide)
-                } else {
-                    SoftButton(stringResource(R.string.btn_one_more), onOneMore, wide)
-                }
+                SoftButton(stringResource(R.string.btn_one_more), onOneMore, wide)
                 SoftButton(stringResource(R.string.btn_stop), onStop, wide, primary = false)
             }
         }
     }
 }
 
-private fun moodOf(ui: TimerUiState): TomatoMood = when (ui.status) {
+private fun moodOf(status: TimerStatus): TomatoMood = when (status) {
     TimerStatus.Idle -> TomatoMood.Idle
     TimerStatus.Paused -> TomatoMood.Sleepy
     TimerStatus.Finished -> TomatoMood.Happy
-    TimerStatus.Running -> if (ui.phase == TimerPhase.Focus) TomatoMood.Focus else TomatoMood.Relaxed
+    TimerStatus.Running -> TomatoMood.Focus
 }
-
-/** 집중 중에는 시간이 갈수록 익고, 그 외에는 잘 익은 상태. */
-private fun ripenessOf(ui: TimerUiState): Float =
-    if (ui.phase == TimerPhase.Focus && ui.status != TimerStatus.Finished) ui.progress else 1f
 
 private fun statusTextRes(ui: TimerUiState): Int = when (ui.status) {
     TimerStatus.Idle -> R.string.status_idle
     TimerStatus.Paused -> R.string.status_paused
-    TimerStatus.Running -> if (ui.phase == TimerPhase.Focus) R.string.status_focus else R.string.status_break
-    TimerStatus.Finished -> if (ui.phase == TimerPhase.Focus) R.string.status_done_focus else R.string.status_done_break
+    TimerStatus.Running -> R.string.status_focus
+    TimerStatus.Finished -> R.string.status_done
 }
 
 @Composable

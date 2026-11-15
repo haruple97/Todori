@@ -5,25 +5,18 @@
     <string name="status_idle">Ready to focus together?</string>
     <string name="status_focus">Todori is ripening…</string>
     <string name="status_paused">Taking a little pause</string>
-    <string name="status_break">Rest up, see you soon</string>
-    <string name="status_done_focus">Yay! Perfectly ripe</string>
-    <string name="status_done_break">All rested!</string>
+    <string name="status_done">Yay! Perfectly ripe</string>
 
     <string name="minutes_format">%d min</string>
-    <string name="minutes_chip_format">%dm</string>
     <string name="done_label">Done!</string>
     <string name="dial_hint">Swipe the tomato up or down to grow your time</string>
     <string name="dial_increase">Increase time</string>
     <string name="dial_decrease">Decrease time</string>
-    <string name="break_label">Break</string>
-    <string name="break_increase">Increase break time</string>
-    <string name="break_decrease">Decrease break time</string>
 
     <string name="btn_start">Start</string>
     <string name="btn_pause">Pause</string>
     <string name="btn_resume">Resume</string>
     <string name="btn_give_up">Give up</string>
-    <string name="btn_start_break">Start break</string>
     <string name="btn_one_more">One more!</string>
     <string name="btn_stop">Stop</string>
 
@@ -35,9 +28,6 @@
     <string name="notif_channel_progress">Running timer</string>
     <string name="notif_channel_done">Timer finished</string>
     <string name="notif_focus_running">Focusing now</string>
-    <string name="notif_break_running">On a break</string>
-    <string name="notif_focus_done_title">Todori is ripe!</string>
-    <string name="notif_focus_done_text">Focus complete! Time for a break?</string>
-    <string name="notif_break_done_title">Break is over!</string>
-    <string name="notif_break_done_text">Time to focus again.</string>
+    <string name="notif_done_title">Todori is ripe!</string>
+    <string name="notif_done_text">Focus complete! Nice work.</string>
 </resources>

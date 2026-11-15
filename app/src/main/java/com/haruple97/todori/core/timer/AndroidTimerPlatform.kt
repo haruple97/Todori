@@ -9,7 +9,6 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.haruple97.todori.R
-import com.haruple97.todori.core.model.TimerPhase
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,12 +32,11 @@ class AndroidTimerPlatform @Inject constructor(
 
     override fun cancelAlarm() = alarmManager.cancel(alarmIntent())
 
-    override fun showRunning(phase: TimerPhase, endElapsedMillis: Long) {
+    override fun showRunning(endElapsedMillis: Long) {
         val endWall = clock.wallClockMillis() + (endElapsedMillis - clock.elapsedRealtime())
-        val title = if (phase == TimerPhase.Focus) R.string.notif_focus_running else R.string.notif_break_running
         val notification = NotificationCompat.Builder(context, CHANNEL_PROGRESS)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(title))
+            .setContentTitle(context.getString(R.string.notif_focus_running))
             .setWhen(endWall)
             .setShowWhen(true)
             .setUsesChronometer(true)
@@ -53,12 +51,11 @@ class AndroidTimerPlatform @Inject constructor(
 
     override fun clearRunning() = notifications.cancel(ID_RUNNING)
 
-    override fun showDone(phase: TimerPhase) {
-        val focus = phase == TimerPhase.Focus
+    override fun showDone() {
         val notification = NotificationCompat.Builder(context, CHANNEL_DONE)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(if (focus) R.string.notif_focus_done_title else R.string.notif_break_done_title))
-            .setContentText(context.getString(if (focus) R.string.notif_focus_done_text else R.string.notif_break_done_text))
+            .setContentTitle(context.getString(R.string.notif_done_title))
+            .setContentText(context.getString(R.string.notif_done_text))
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)

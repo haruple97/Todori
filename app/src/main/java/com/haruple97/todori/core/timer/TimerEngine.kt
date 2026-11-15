@@ -3,7 +3,6 @@ package com.haruple97.todori.core.timer
 import com.haruple97.todori.core.common.IoDispatcher
 import com.haruple97.todori.core.data.repository.SessionRepository
 import com.haruple97.todori.core.model.SessionRecord
-import com.haruple97.todori.core.model.TimerPhase
 import com.haruple97.todori.core.model.TimerState
 import com.haruple97.todori.core.model.TimerStatus
 import javax.inject.Inject
@@ -48,11 +47,11 @@ class TimerEngine @Inject constructor(
     }
 
     @Synchronized
-    fun start(phase: TimerPhase, totalMillis: Long) {
+    fun start(totalMillis: Long) {
         endElapsed = clock.elapsedRealtime() + totalMillis
-        _state.value = TimerState(phase, TimerStatus.Running, totalMillis, totalMillis)
+        _state.value = TimerState(TimerStatus.Running, totalMillis, totalMillis)
         platform.scheduleAlarm(endElapsed)
-        platform.showRunning(phase, endElapsed)
+        platform.showRunning(endElapsed)
         persist()
     }
 
@@ -74,7 +73,7 @@ class TimerEngine @Inject constructor(
         endElapsed = clock.elapsedRealtime() + s.remainingMillis
         _state.value = s.copy(status = TimerStatus.Running)
         platform.scheduleAlarm(endElapsed)
-        platform.showRunning(s.phase, endElapsed)
+        platform.showRunning(endElapsed)
         persist()
     }
 
@@ -99,11 +98,11 @@ class TimerEngine @Inject constructor(
                 }
                 endElapsed = s.endElapsed
                 val remaining = (endElapsed - clock.elapsedRealtime()).coerceAtLeast(0L)
-                _state.value = TimerState(s.phase, TimerStatus.Running, s.totalMillis, remaining)
+                _state.value = TimerState(TimerStatus.Running, s.totalMillis, remaining)
                 refreshLocked()
             }
             TimerStatus.Paused, TimerStatus.Finished ->
-                _state.value = TimerState(s.phase, s.status, s.totalMillis, s.remainingMillis)
+                _state.value = TimerState(s.status, s.totalMillis, s.remainingMillis)
             TimerStatus.Idle -> Unit
         }
     }
@@ -125,16 +124,13 @@ class TimerEngine @Inject constructor(
         _state.value = s.copy(status = TimerStatus.Finished, remainingMillis = 0L)
         platform.cancelAlarm()
         platform.clearRunning()
-        platform.showDone(s.phase)
+        platform.showDone()
         persist()
-        if (s.phase == TimerPhase.Focus) {
-            val record = SessionRecord(
-                phase = TimerPhase.Focus,
-                durationMinutes = (s.totalMillis / 60_000L).toInt(),
-                completedAtMillis = clock.wallClockMillis()
-            )
-            scope.launch { sessions.record(record) }
-        }
+        val record = SessionRecord(
+            durationMinutes = (s.totalMillis / 60_000L).toInt(),
+            completedAtMillis = clock.wallClockMillis()
+        )
+        scope.launch { sessions.record(record) }
     }
 
     private fun reset() {
@@ -151,7 +147,6 @@ class TimerEngine @Inject constructor(
                 null
             } else {
                 TimerSnapshot(
-                    phase = s.phase,
                     status = s.status,
                     totalMillis = s.totalMillis,
                     remainingMillis = s.remainingMillis,

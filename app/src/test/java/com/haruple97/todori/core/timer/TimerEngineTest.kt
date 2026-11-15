@@ -2,7 +2,6 @@ package com.haruple97.todori.core.timer
 
 import com.haruple97.todori.core.data.repository.SessionRepository
 import com.haruple97.todori.core.model.SessionRecord
-import com.haruple97.todori.core.model.TimerPhase
 import com.haruple97.todori.core.model.TimerStatus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -33,13 +32,12 @@ private class FakePersistence : TimerPersistence {
 }
 
 private class FakePlatform : TimerPlatform {
-    var alarmScheduled = false
     var doneCount = 0
-    override fun scheduleAlarm(triggerElapsedMillis: Long) { alarmScheduled = true }
-    override fun cancelAlarm() { alarmScheduled = false }
-    override fun showRunning(phase: TimerPhase, endElapsedMillis: Long) = Unit
+    override fun scheduleAlarm(triggerElapsedMillis: Long) = Unit
+    override fun cancelAlarm() = Unit
+    override fun showRunning(endElapsedMillis: Long) = Unit
     override fun clearRunning() = Unit
-    override fun showDone(phase: TimerPhase) { doneCount++ }
+    override fun showDone() { doneCount++ }
 }
 
 private class FakeSessions : SessionRepository {
@@ -61,7 +59,7 @@ class TimerEngineTest {
     @Test
     fun `시작 후 경과 시간만큼 남은 시간이 줄어든다`() {
         val engine = newEngine()
-        engine.start(TimerPhase.Focus, 25 * MINUTE)
+        engine.start(25 * MINUTE)
         clock.advance(10_000)
         engine.refresh()
 
@@ -72,7 +70,7 @@ class TimerEngineTest {
     @Test
     fun `일시정지 중에는 시간이 멈추고 재개하면 이어진다`() {
         val engine = newEngine()
-        engine.start(TimerPhase.Focus, 25 * MINUTE)
+        engine.start(25 * MINUTE)
         clock.advance(MINUTE)
         engine.pause()
         clock.advance(5 * MINUTE)
@@ -86,9 +84,9 @@ class TimerEngineTest {
     }
 
     @Test
-    fun `집중이 끝나면 한 번만 완료 처리되고 세션이 기록된다`() {
+    fun `끝나면 한 번만 완료 처리되고 세션이 기록된다`() {
         val engine = newEngine()
-        engine.start(TimerPhase.Focus, 25 * MINUTE)
+        engine.start(25 * MINUTE)
         clock.advance(25 * MINUTE)
         engine.refresh()
         engine.onAlarm()
@@ -99,19 +97,8 @@ class TimerEngineTest {
     }
 
     @Test
-    fun `휴식 완료는 세션으로 기록하지 않는다`() {
-        val engine = newEngine()
-        engine.start(TimerPhase.Break, 5 * MINUTE)
-        clock.advance(5 * MINUTE)
-        engine.refresh()
-
-        assertEquals(TimerStatus.Finished, engine.state.value.status)
-        assertEquals(0, sessions.records.size)
-    }
-
-    @Test
     fun `프로세스 재시작 후 진행 중이던 타이머를 복원한다`() = runTest {
-        newEngine().start(TimerPhase.Focus, 25 * MINUTE)
+        newEngine().start(25 * MINUTE)
         clock.advance(2 * MINUTE)
 
         val restarted = newEngine()
@@ -123,7 +110,7 @@ class TimerEngineTest {
 
     @Test
     fun `재부팅으로 보이면 저장된 타이머를 버린다`() = runTest {
-        newEngine().start(TimerPhase.Focus, 25 * MINUTE)
+        newEngine().start(25 * MINUTE)
         // 재부팅: elapsedRealtime은 초기화되고 벽시계는 계속 흐른다.
         clock.elapsed = 5_000L
         clock.wall += 10 * MINUTE

@@ -1,6 +1,5 @@
 package com.haruple97.todori.core.timer
 
-import com.haruple97.todori.core.model.TimerPhase
 import com.haruple97.todori.core.model.TimerStatus
 
 interface TimeSource {
@@ -9,7 +8,6 @@ interface TimeSource {
 }
 
 data class TimerSnapshot(
-    val phase: TimerPhase,
     val status: TimerStatus,
     val totalMillis: Long,
     val remainingMillis: Long,
@@ -27,7 +25,7 @@ interface TimerPersistence {
 interface TimerPlatform {
     fun scheduleAlarm(triggerElapsedMillis: Long)
     fun cancelAlarm()
-    fun showRunning(phase: TimerPhase, endElapsedMillis: Long)
+    fun showRunning(endElapsedMillis: Long)
     fun clearRunning()
-    fun showDone(phase: TimerPhase)
+    fun showDone()
 }

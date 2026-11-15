@@ -20,22 +20,14 @@ class SettingsRepositoryImpl @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) : SettingsRepository {
     override val settings: Flow<TimerSettings> = dataStore.data.map { prefs ->
-        val default = TimerSettings()
-        TimerSettings(
-            focusMinutes = prefs[FOCUS_MINUTES] ?: default.focusMinutes,
-            breakMinutes = prefs[BREAK_MINUTES] ?: default.breakMinutes
-        )
+        TimerSettings(focusMinutes = prefs[FOCUS_MINUTES] ?: TimerSettings().focusMinutes)
     }
 
     override suspend fun update(settings: TimerSettings) {
-        dataStore.edit {
-            it[FOCUS_MINUTES] = settings.focusMinutes
-            it[BREAK_MINUTES] = settings.breakMinutes
-        }
+        dataStore.edit { it[FOCUS_MINUTES] = settings.focusMinutes }
     }
 
     private companion object {
         val FOCUS_MINUTES = intPreferencesKey("focus_minutes")
-        val BREAK_MINUTES = intPreferencesKey("break_minutes")
     }
 }

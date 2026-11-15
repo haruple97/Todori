@@ -1,13 +1,10 @@
 package com.haruple97.todori.feature.timer
 
-import com.haruple97.todori.core.model.TimerPhase
 import com.haruple97.todori.core.model.TimerStatus
 
 data class TimerUiState(
-    val phase: TimerPhase = TimerPhase.Focus,
     val status: TimerStatus = TimerStatus.Idle,
     val focusMinutes: Int = 25,
-    val breakMinutes: Int = 5,
     val totalMillis: Long = 0L,
     val remainingMillis: Long = 0L
 ) {
