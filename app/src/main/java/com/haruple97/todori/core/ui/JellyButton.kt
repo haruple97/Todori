@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
@@ -41,6 +42,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.haruple97.todori.core.designsystem.theme.JellyPinkDeep
 import com.haruple97.todori.core.designsystem.theme.JellyPinkLight
@@ -51,6 +53,7 @@ private val ButtonHeight = 60.dp
 @Composable
 private fun Modifier.jellyPress(
     source: MutableInteractionSource,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ): Modifier {
     val pressed by source.collectIsPressedAsState()
@@ -65,7 +68,7 @@ private fun Modifier.jellyPress(
             scaleX = scale
             scaleY = scale
         }
-        .clickable(interactionSource = source, indication = null, role = Role.Button) {
+        .clickable(interactionSource = source, indication = null, enabled = enabled, role = Role.Button) {
             haptics.performHapticFeedback(HapticFeedbackType.ContextClick)
             onClick()
         }
@@ -91,7 +94,7 @@ fun JellyButton(
     Box(
         modifier = modifier
             .height(ButtonHeight)
-            .jellyPress(source, onClick)
+            .jellyPress(source, onClick = onClick)
             .glow(shape)
             .clip(shape)
             .background(Brush.verticalGradient(listOf(JellyPinkLight, JellyPinkDeep)))
@@ -126,13 +129,16 @@ fun GlassIconButton(
     icon: ImageVector,
     contentDescription: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    size: Dp = ButtonHeight,
+    enabled: Boolean = true
 ) {
     val source = remember { MutableInteractionSource() }
     Box(
         modifier = modifier
-            .size(ButtonHeight)
-            .jellyPress(source, onClick)
+            .size(size)
+            .alpha(if (enabled) 1f else 0.35f)
+            .jellyPress(source, enabled, onClick)
             .shadow(
                 elevation = 8.dp,
                 shape = CircleShape,
@@ -145,6 +151,6 @@ fun GlassIconButton(
             .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.Center
     ) {
-        Icon(icon, contentDescription = null, tint = JellyPinkDeep, modifier = Modifier.size(26.dp))
+        Icon(icon, contentDescription = null, tint = JellyPinkDeep, modifier = Modifier.size(size * 0.43f))
     }
 }

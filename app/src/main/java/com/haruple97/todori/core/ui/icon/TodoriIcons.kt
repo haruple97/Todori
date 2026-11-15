@@ -50,6 +50,71 @@ object TodoriIcons {
         }.build()
     }
 
+    val ChevronLeft: ImageVector by lazy {
+        ImageVector.Builder("ChevronLeft", 24.dp, 24.dp, 24f, 24f).apply {
+            path(
+                stroke = Ink,
+                strokeLineWidth = 2.8f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round
+            ) {
+                moveTo(14.5f, 6f)
+                lineTo(8.5f, 12f)
+                lineTo(14.5f, 18f)
+            }
+        }.build()
+    }
+
+    val ChevronRight: ImageVector by lazy {
+        ImageVector.Builder("ChevronRight", 24.dp, 24.dp, 24f, 24f).apply {
+            path(
+                stroke = Ink,
+                strokeLineWidth = 2.8f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round
+            ) {
+                moveTo(9.5f, 6f)
+                lineTo(15.5f, 12f)
+                lineTo(9.5f, 18f)
+            }
+        }.build()
+    }
+
+    /** 달력 모양 안에 토마토 점이 하나 찍힌 기록 아이콘. */
+    val Calendar: ImageVector by lazy {
+        ImageVector.Builder("Calendar", 24.dp, 24.dp, 24f, 24f).apply {
+            path(
+                stroke = Ink,
+                strokeLineWidth = 2.2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round
+            ) {
+                moveTo(5f, 6.5f)
+                horizontalLineTo(19f)
+                arcTo(2f, 2f, 0f, false, true, 21f, 8.5f)
+                verticalLineTo(18f)
+                arcTo(2f, 2f, 0f, false, true, 19f, 20f)
+                horizontalLineTo(5f)
+                arcTo(2f, 2f, 0f, false, true, 3f, 18f)
+                verticalLineTo(8.5f)
+                arcTo(2f, 2f, 0f, false, true, 5f, 6.5f)
+                close()
+                moveTo(3f, 10.5f)
+                horizontalLineTo(21f)
+                moveTo(8f, 3.8f)
+                verticalLineTo(7.8f)
+                moveTo(16f, 3.8f)
+                verticalLineTo(7.8f)
+            }
+            path(fill = Ink) {
+                moveTo(12f, 13.2f)
+                arcToRelative(2.1f, 2.1f, 0f, true, true, 0f, 4.2f)
+                arcToRelative(2.1f, 2.1f, 0f, true, true, 0f, -4.2f)
+                close()
+            }
+        }.build()
+    }
+
     val Heart: ImageVector by lazy {
         ImageVector.Builder("Heart", 24.dp, 24.dp, 24f, 24f).apply {
             path(fill = Ink, stroke = Ink, strokeLineWidth = 1.2f, strokeLineJoin = StrokeJoin.Round) {
