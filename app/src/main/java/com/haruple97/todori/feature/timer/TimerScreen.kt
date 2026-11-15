@@ -80,6 +80,7 @@ import com.haruple97.todori.core.ui.TomatoMood
 import com.haruple97.todori.core.ui.drawHeart
 import com.haruple97.todori.core.ui.icon.TodoriIcons
 import com.haruple97.todori.feature.timer.component.DialRail
+import com.haruple97.todori.feature.timer.component.HarvestRow
 import com.haruple97.todori.feature.timer.component.TomatoDial
 import kotlin.math.PI
 import kotlin.math.cos
@@ -194,6 +195,8 @@ private fun BoxScope.SinglePaneContent(ui: TimerUiState, actions: TimerActions, 
             .widthIn(max = MAX_CONTENT_WIDTH),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(Modifier.height(8.dp))
+        HarvestRow(ui.todayCount)
         Spacer(Modifier.weight(1f))
         SpeechBubble(bubbleText(ui.status))
         Spacer(Modifier.height(14.dp))
@@ -229,6 +232,8 @@ private fun TwoPaneContent(ui: TimerUiState, actions: TimerActions, width: Dp, h
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            HarvestRow(ui.todayCount)
+            Spacer(Modifier.height(16.dp))
             TimeAndHint(ui)
             Spacer(Modifier.height(24.dp))
             Controls(ui.status, actions)

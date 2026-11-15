@@ -22,6 +22,8 @@
         <item>One more tomato harvested!</item>
     </string-array>
 
+    <string name="harvest_today">Harvested %d today</string>
+    <string name="harvest_empty">Grow your first tomato today</string>
     <string name="minutes_format">%d min</string>
     <string name="done_label">Done!</string>
     <string name="dial_hint">Swipe the tomato up or down to grow your time</string>
