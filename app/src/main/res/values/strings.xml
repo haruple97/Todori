@@ -19,7 +19,7 @@
     <string-array name="bubble_done">
         <item>짝짝! 잘 익었어요</item>
         <item>해냈다! 정말 수고했어요</item>
-        <item>오늘도 해냈어요, 최고!</item>
+        <item>기록에 토마토가 하나 채워졌어요!</item>
     </string-array>
 
     <string name="greeting_morning">좋은 아침이에요</string>
@@ -28,6 +28,26 @@
     <string name="greeting_night">오늘도 수고했어요</string>
     <string name="date_pattern">M월 d일 EEEE</string>
     <string name="minutes_format">%d분</string>
+    <string name="duration_hours">%d시간</string>
+    <string name="duration_hours_minutes">%1$d시간 %2$d분</string>
+    <string name="count_format">%d개</string>
+    <string name="days_format">%d일</string>
+
+    <string name="record_open">토마토 기록 보기</string>
+    <string name="record_back">뒤로</string>
+    <string name="record_title">토마토 기록</string>
+    <string name="record_prev_month">이전 달</string>
+    <string name="record_next_month">다음 달</string>
+    <string name="stat_tomatoes">모은 토마토</string>
+    <string name="stat_focus_time">집중 시간</string>
+    <string name="stat_streak">연속 달성</string>
+    <string name="month_pattern">yyyy년 M월</string>
+    <string name="day_pattern">M월 d일 (E)</string>
+    <string name="record_cell_description">%1$s, 토마토 %2$d개</string>
+    <string name="record_day_summary">토마토 %1$d개 · %2$s</string>
+    <string name="record_day_empty">이 날은 채운 토마토가 없어요</string>
+    <string name="record_empty_title">아직 채운 토마토가 없어요</string>
+    <string name="record_empty_hint">집중을 한 번 끝낼 때마다\n토마토가 하나씩 채워져요</string>
     <string name="done_label">완료!</string>
     <string name="dial_hint">토마토를 위아래로 쓸어서 시간을 키워요</string>
     <string name="dial_increase">시간 늘리기</string>

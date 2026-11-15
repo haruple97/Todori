@@ -12,7 +12,7 @@
 | `core/ui` | 토마토 캐릭터(`TomatoCharacter`), 파티클, 공용 버튼/칩 |
 | `core/timer` | `TimerEngine`(종료 시각 기준 상태머신), 알람·알림(`TimerPlatform`), 영속화 인터페이스. 서비스 없이 AlarmManager로 완료 처리 |
 | `core/di` | Hilt 모듈 |
-| `feature/*` | 화면 단위: `Screen` + `ViewModel` + `UiState` |
+| `feature/*` | 화면 단위: `Screen` + `ViewModel` + `UiState` (`timer`, `record`) |
 | `navigation` | NavHost, 타입세이프 라우트 |
 
 ## 의존 규칙
@@ -21,6 +21,14 @@
 - ViewModel은 `StateFlow<UiState>` 하나만 노출, Compose는 `collectAsStateWithLifecycle`로 구독.
 - Dispatcher는 `@IoDispatcher`/`@DefaultDispatcher`로 주입(하드코딩 금지).
 - UseCase(`core/domain`)는 로직이 두 곳 이상에서 재사용될 때만 도입.
+
+## 기록(토마토 달력)
+- 집중이 끝나면 `TimerEngine`이 `SessionRepository`에 완료 기록을 남기고, `feature/record`가 그 Flow를 구독해 월 달력에 토마토를 채운다.
+- 날짜 묶기·연속 일수·달력 격자는 `RecordLogic.kt`의 순수 함수(단위 테스트 있음)로 두고, ViewModel은 상태 조합만 한다.
+- 타이머 화면 → 기록 화면은 `navigation/TodoriNavHost.kt`의 `RecordRoute`로 이동한다.
+
+## 화면 꺼짐 방지
+- 타이머가 `Running`일 때만 `View.keepScreenOn`을 켜고, 일시정지·완료·화면 이탈(`onDispose`) 시 즉시 끈다. 백그라운드에서는 알람이 완료를 처리하므로 화면을 켜 둘 필요가 없다.
 
 ## 반응형 레이아웃
 - 화면 분기는 기기·방향이 아니라 Window Size Class(`currentWindowAdaptiveInfo().windowSizeClass`, `material3-adaptive`)로 한다.

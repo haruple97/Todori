@@ -19,7 +19,7 @@
     <string-array name="bubble_done">
         <item>Yay! Perfectly ripe</item>
         <item>We did it! Great job</item>
-        <item>You did it again, amazing!</item>
+        <item>One more tomato filled in your record!</item>
     </string-array>
 
     <string name="greeting_morning">Good morning</string>
@@ -28,6 +28,26 @@
     <string name="greeting_night">Great work today</string>
     <string name="date_pattern">EEEE, MMM d</string>
     <string name="minutes_format">%d min</string>
+    <string name="duration_hours">%d h</string>
+    <string name="duration_hours_minutes">%1$d h %2$d min</string>
+    <string name="count_format">%d</string>
+    <string name="days_format">%d d</string>
+
+    <string name="record_open">View tomato record</string>
+    <string name="record_back">Back</string>
+    <string name="record_title">Tomato record</string>
+    <string name="record_prev_month">Previous month</string>
+    <string name="record_next_month">Next month</string>
+    <string name="stat_tomatoes">Tomatoes</string>
+    <string name="stat_focus_time">Focus time</string>
+    <string name="stat_streak">Streak</string>
+    <string name="month_pattern">MMMM yyyy</string>
+    <string name="day_pattern">EEE, MMM d</string>
+    <string name="record_cell_description">%1$s, %2$d tomatoes</string>
+    <string name="record_day_summary">%1$d tomatoes · %2$s</string>
+    <string name="record_day_empty">No tomatoes on this day</string>
+    <string name="record_empty_title">No tomatoes yet</string>
+    <string name="record_empty_hint">Every finished focus session\nfills in one tomato</string>
     <string name="done_label">Done!</string>
     <string name="dial_hint">Swipe the tomato up or down to grow your time</string>
     <string name="dial_increase">Increase time</string>

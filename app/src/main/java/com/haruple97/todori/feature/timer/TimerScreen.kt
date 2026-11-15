@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +51,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -100,6 +102,7 @@ private class TimerActions(
 
 @Composable
 fun TimerScreen(
+    onOpenRecord: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TimerViewModel = hiltViewModel()
 ) {
@@ -108,6 +111,14 @@ fun TimerScreen(
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
     var showGiveUp by rememberSaveable { mutableStateOf(false) }
+
+    // 타이머가 돌아가는 동안에는 화면이 꺼지지 않게 한다. 일시정지·완료·화면 이탈 시 즉시 해제한다.
+    val view = LocalView.current
+    val keepScreenOn = ui.status == TimerStatus.Running
+    DisposableEffect(keepScreenOn) {
+        view.keepScreenOn = keepScreenOn
+        onDispose { view.keepScreenOn = false }
+    }
 
     LaunchedEffect(ui.status) {
         if (ui.status == TimerStatus.Running) {
@@ -164,6 +175,13 @@ fun TimerScreen(
             } else {
                 SinglePaneContent(ui, actions, maxHeight)
             }
+            GlassIconButton(
+                icon = TodoriIcons.Calendar,
+                contentDescription = stringResource(R.string.record_open),
+                onClick = onOpenRecord,
+                modifier = Modifier.align(Alignment.TopEnd),
+                size = 48.dp
+            )
         }
         ConfettiBurst(trigger = ui.status == TimerStatus.Finished)
     }
