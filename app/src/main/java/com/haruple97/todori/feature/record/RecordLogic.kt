@@ -31,4 +31,10 @@ fun monthGrid(month: YearMonth): List<List<LocalDate?>> {
     return (days + List(trailing) { null }).chunked(DAYS_IN_WEEK)
 }
 
+/** [date]가 속한 주의 일~토 일곱 날짜. */
+fun weekOf(date: LocalDate): List<LocalDate> {
+    val sunday = date.minusDays((date.dayOfWeek.value % DAYS_IN_WEEK).toLong())
+    return List(DAYS_IN_WEEK) { sunday.plusDays(it.toLong()) }
+}
+
 private const val DAYS_IN_WEEK = 7
