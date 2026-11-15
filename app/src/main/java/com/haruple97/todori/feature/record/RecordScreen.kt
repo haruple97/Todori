@@ -71,6 +71,7 @@ private val WEEKDAY_ROW_HEIGHT = 24.dp
 
 private class RecordActions(
     val onBack: () -> Unit,
+    val onOpenStats: () -> Unit,
     val onPreviousMonth: () -> Unit,
     val onNextMonth: () -> Unit,
     val onSelect: (java.time.LocalDate) -> Unit,
@@ -81,6 +82,7 @@ private class RecordActions(
 @Composable
 fun RecordScreen(
     onBack: () -> Unit,
+    onOpenStats: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: RecordViewModel = hiltViewModel()
 ) {
@@ -93,6 +95,7 @@ fun RecordScreen(
     var confirmDeleteDay by rememberSaveable { mutableStateOf(false) }
     val actions = RecordActions(
         onBack = onBack,
+        onOpenStats = onOpenStats,
         onPreviousMonth = viewModel::previousMonth,
         onNextMonth = viewModel::nextMonth,
         onSelect = viewModel::select,
@@ -200,7 +203,7 @@ private fun BoxScope.SinglePane(ui: RecordUiState, actions: RecordActions, conte
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        TopBar(actions.onBack)
+        TopBar(actions.onBack, actions.onOpenStats)
         RecordSummary(ui.totalCount, ui.totalMinutes, ui.streak)
         CalendarSection(ui, actions, cellSize = contentWidth / 7, modifier = Modifier.align(Alignment.CenterHorizontally))
         DetailSection(ui, actions)
@@ -225,7 +228,7 @@ private fun TwoPane(ui: RecordUiState, actions: RecordActions, width: Dp, height
             modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            TopBar(actions.onBack)
+            TopBar(actions.onBack, actions.onOpenStats)
             RecordSummary(ui.totalCount, ui.totalMinutes, ui.streak)
             DetailSection(ui, actions)
             Spacer(Modifier.height(72.dp))
@@ -234,7 +237,7 @@ private fun TwoPane(ui: RecordUiState, actions: RecordActions, width: Dp, height
 }
 
 @Composable
-private fun TopBar(onBack: () -> Unit, modifier: Modifier = Modifier) {
+private fun TopBar(onBack: () -> Unit, onOpenStats: () -> Unit, modifier: Modifier = Modifier) {
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         GlassIconButton(
             icon = TodoriIcons.ChevronLeft,
@@ -246,7 +249,14 @@ private fun TopBar(onBack: () -> Unit, modifier: Modifier = Modifier) {
         Text(
             text = stringResource(R.string.record_title),
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.weight(1f)
+        )
+        GlassIconButton(
+            icon = TodoriIcons.Chart,
+            contentDescription = stringResource(R.string.stats_open),
+            onClick = onOpenStats,
+            size = TOP_BAR_HEIGHT
         )
     }
 }

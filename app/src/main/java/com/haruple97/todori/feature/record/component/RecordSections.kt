@@ -28,6 +28,9 @@ import com.haruple97.todori.R
 import com.haruple97.todori.core.designsystem.theme.todoriColors
 import com.haruple97.todori.core.model.SessionRecord
 import com.haruple97.todori.core.ui.GlassIconButton
+import com.haruple97.todori.core.ui.SoftCard
+import com.haruple97.todori.core.ui.StatCard
+import com.haruple97.todori.core.ui.formatDuration
 import com.haruple97.todori.core.ui.MiniTomato
 import com.haruple97.todori.core.ui.TomatoCharacter
 import com.haruple97.todori.core.ui.TomatoMood
@@ -38,58 +41,13 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-@Composable
-private fun SoftCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
-        border = BorderStroke(1.5.dp, todoriColors.accentLight),
-        content = content
-    )
-}
-
 /** 전체 토마토 · 총 집중 시간 · 연속 일수 요약 카드 세 개. */
 @Composable
 fun RecordSummary(totalCount: Int, totalMinutes: Int, streak: Int, modifier: Modifier = Modifier) {
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         StatCard(stringResource(R.string.count_format, totalCount), stringResource(R.string.stat_tomatoes), Modifier.weight(1f))
-        StatCard(formatFocusMinutes(totalMinutes), stringResource(R.string.stat_focus_time), Modifier.weight(1f))
+        StatCard(formatDuration(totalMinutes), stringResource(R.string.stat_focus_time), Modifier.weight(1f))
         StatCard(stringResource(R.string.days_format, streak), stringResource(R.string.stat_streak), Modifier.weight(1f))
-    }
-}
-
-@Composable
-private fun StatCard(value: String, label: String, modifier: Modifier = Modifier) {
-    SoftCard(modifier) {
-        Column(
-            modifier = Modifier.padding(horizontal = 6.dp, vertical = 14.dp).fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineSmall.copy(fontSize = 22.sp, lineHeight = 28.sp),
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1
-            )
-            Spacer(Modifier.height(2.dp))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 12.sp),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-        }
-    }
-}
-
-@Composable
-private fun formatFocusMinutes(totalMinutes: Int): String {
-    val hours = totalMinutes / 60
-    val minutes = totalMinutes % 60
-    return when {
-        hours == 0 -> stringResource(R.string.minutes_format, minutes)
-        minutes == 0 -> stringResource(R.string.duration_hours, hours)
-        else -> stringResource(R.string.duration_hours_minutes, hours, minutes)
     }
 }
 
@@ -127,7 +85,7 @@ fun DayDetail(
                     text = stringResource(
                         R.string.record_day_summary,
                         sessions.size,
-                        formatFocusMinutes(sessions.sumOf { it.durationMinutes })
+                        formatDuration(sessions.sumOf { it.durationMinutes })
                     ),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)

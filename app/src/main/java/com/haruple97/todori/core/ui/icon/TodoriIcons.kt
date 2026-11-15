@@ -231,6 +231,20 @@ object TodoriIcons {
         }.build()
     }
 
+    /** 둥근 막대 세 개. 통계 진입 버튼. */
+    val Chart: ImageVector by lazy {
+        ImageVector.Builder("Chart", 24.dp, 24.dp, 24f, 24f).apply {
+            path(stroke = Ink, strokeLineWidth = 3.6f, strokeLineCap = StrokeCap.Round) {
+                moveTo(6f, 19f)
+                verticalLineTo(13f)
+                moveTo(12f, 19f)
+                verticalLineTo(6f)
+                moveTo(18f, 19f)
+                verticalLineTo(10f)
+            }
+        }.build()
+    }
+
     val Heart: ImageVector by lazy {
         ImageVector.Builder("Heart", 24.dp, 24.dp, 24f, 24f).apply {
             path(fill = Ink, stroke = Ink, strokeLineWidth = 1.2f, strokeLineJoin = StrokeJoin.Round) {
