@@ -120,4 +120,32 @@
         <item>오래 집중했어요, 정말 멋져요!</item>
         <item>기록에 큼직한 토마토가 채워졌어요</item>
     </string-array>
+
+    <!-- 사이클: 휴식 중 / 집중 끝(휴식 제안) / 휴식 끝 / 사이클 완료 -->
+    <string-array name="bubble_cycle_short_break">
+        <item>잠깐 숨 돌려요, 잘했어요</item>
+        <item>{name}도 같이 쉬는 중이에요</item>
+        <item>기지개 한 번 쭉 펴볼까요?</item>
+        <item>물 한 모금 마시고 와요</item>
+    </string-array>
+    <string-array name="bubble_cycle_long_break">
+        <item>긴 휴식이에요, 푹 쉬어요</item>
+        <item>눈도 쉬게 먼 곳을 바라봐요</item>
+        <item>{name}와 함께 천천히 쉬어가요</item>
+    </string-array>
+    <string-array name="bubble_cycle_focus_done">
+        <item>집중 끝! 이제 쉬어볼까요?</item>
+        <item>잘했어요, 휴식 시간이에요</item>
+        <item>{name}가 달콤하게 익었어요</item>
+    </string-array>
+    <string-array name="bubble_cycle_break_done">
+        <item>충분히 쉬었나요? 다시 집중해요</item>
+        <item>{name}가 다시 시작할 준비 완료!</item>
+        <item>한 번 더 힘내볼까요?</item>
+    </string-array>
+    <string-array name="bubble_cycle_complete">
+        <item>사이클 완주! 정말 대단해요</item>
+        <item>오늘 {name}와 완벽한 한 바퀴였어요</item>
+        <item>모든 단계를 해냈어요, 최고!</item>
+    </string-array>
 </resources>

@@ -83,6 +83,10 @@ import com.haruple97.todori.core.designsystem.theme.LocalSkin
 import com.haruple97.todori.core.designsystem.theme.todoriColors
 import com.haruple97.todori.core.ui.nameRes
 import com.haruple97.todori.core.model.TimerStatus
+import com.haruple97.todori.feature.timer.component.CycleSheet
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import com.haruple97.todori.core.model.TimerPhase
 import com.haruple97.todori.core.ui.ConfettiBurst
 import com.haruple97.todori.core.ui.FloatingDecor
 import com.haruple97.todori.core.ui.GlassIconButton
@@ -110,7 +114,10 @@ private class TimerActions(
     val onGiveUp: () -> Unit,
     val onOneMore: () -> Unit,
     val onStop: () -> Unit,
-    val onCustomTime: () -> Unit
+    val onCustomTime: () -> Unit,
+    val onCycle: () -> Unit,
+    val onStartNext: () -> Unit,
+    val onSkipBreak: () -> Unit
 )
 
 @Composable
@@ -127,6 +134,7 @@ fun TimerScreen(
     var showGiveUp by rememberSaveable { mutableStateOf(false) }
     var showTimeSheet by rememberSaveable { mutableStateOf(false) }
     var showPremiumGate by rememberSaveable { mutableStateOf(false) }
+    var showCycleSheet by rememberSaveable { mutableStateOf(false) }
 
     // 타이머가 돌아가는 동안에는 화면이 꺼지지 않게 한다. 일시정지·완료·화면 이탈 시 즉시 해제한다.
     val view = LocalView.current
@@ -182,14 +190,18 @@ fun TimerScreen(
         onOneMore = viewModel::start,
         onStop = viewModel::stop,
         // 프리미엄이면 1분 단위 설정 시트, 아니면 프리미엄 안내 시트
-        onCustomTime = { if (ui.isPremium) showTimeSheet = true else showPremiumGate = true }
+        onCustomTime = { if (ui.isPremium) showTimeSheet = true else showPremiumGate = true },
+        onCycle = { showCycleSheet = true },
+        onStartNext = viewModel::startNext,
+        onSkipBreak = viewModel::skipBreak
     )
 
     val bubble = bubbleText(ui)
-    val tone = when (ui.status) {
-        TimerStatus.Idle -> BackgroundTone.Calm
-        TimerStatus.Running, TimerStatus.Paused -> BackgroundTone.Focus
-        TimerStatus.Finished -> BackgroundTone.Celebrate
+    val tone = when {
+        ui.status == TimerStatus.Idle -> BackgroundTone.Calm
+        ui.isBreak && ui.status != TimerStatus.Finished -> BackgroundTone.Rest
+        ui.status == TimerStatus.Finished -> BackgroundTone.Celebrate
+        else -> BackgroundTone.Focus
     }
     TodoriBackground(tone, modifier.fillMaxSize()) {
         FloatingDecor()
@@ -236,6 +248,18 @@ fun TimerScreen(
         )
     }
     if (showPremiumGate) PremiumGateSheet(onDismiss = { showPremiumGate = false })
+    if (showCycleSheet) {
+        CycleSheet(
+            settings = ui.cycleSettings,
+            editable = ui.isPremium,
+            onDismiss = { showCycleSheet = false },
+            onSave = viewModel::saveCycle,
+            onUnlock = {
+                showCycleSheet = false
+                showPremiumGate = true
+            }
+        )
+    }
 
     if (showGiveUp) {
         AlertDialog(
@@ -284,12 +308,12 @@ private fun BoxScope.SinglePaneContent(ui: TimerUiState, actions: TimerActions, 
                 Spacer(Modifier.height(14.dp))
                 TomatoStage(ui, stageSize = stageSize, onMinutesChange = actions.onMinutesChange)
                 Spacer(Modifier.height(8.dp))
-                TimeAndHint(ui, actions.onCustomTime)
+                TimeAndHint(ui, actions.onCustomTime, actions.onCycle)
                 Spacer(Modifier.height(12.dp))
             }
         }
         Spacer(Modifier.height(12.dp))
-        Controls(ui.status, actions)
+        Controls(ui, actions)
     }
 }
 
@@ -319,15 +343,15 @@ private fun TwoPaneContent(ui: TimerUiState, actions: TimerActions, bubble: Stri
         ) {
             GreetingHeader(horizontalAlignment = Alignment.CenterHorizontally)
             Spacer(Modifier.height(16.dp))
-            TimeAndHint(ui, actions.onCustomTime)
+            TimeAndHint(ui, actions.onCustomTime, actions.onCycle)
             Spacer(Modifier.height(24.dp))
-            Controls(ui.status, actions)
+            Controls(ui, actions)
         }
     }
 }
 
 @Composable
-private fun TimeAndHint(ui: TimerUiState, onCustomTime: () -> Unit) {
+private fun TimeAndHint(ui: TimerUiState, onCustomTime: () -> Unit, onCycle: () -> Unit) {
     Text(
         text = timeText(ui),
         style = MaterialTheme.typography.displayLarge,
@@ -342,7 +366,13 @@ private fun TimeAndHint(ui: TimerUiState, onCustomTime: () -> Unit) {
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(10.dp))
-        CustomTimeChip(locked = !ui.isPremium, onClick = onCustomTime)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            CustomTimeChip(locked = !ui.isPremium, onClick = onCustomTime)
+            CycleChip(locked = !ui.isPremium, on = ui.cycleOn, onClick = onCycle)
+        }
+    } else if (ui.plan != null) {
+        Spacer(Modifier.height(10.dp))
+        CycleIndicator(ui)
     }
 }
 
@@ -395,8 +425,8 @@ private fun TomatoStage(ui: TimerUiState, stageSize: Dp, onMinutesChange: (Int) 
         } else {
             ProgressRing(ui.progress, Modifier.size(stageSize))
             TomatoCharacter(
-                mood = moodOf(ui.status),
-                ripeness = if (ui.status == TimerStatus.Finished) 1f else ui.progress,
+                mood = moodOf(ui),
+                ripeness = if (ui.status == TimerStatus.Finished || ui.isBreak) 1f else ui.progress,
                 modifier = Modifier.size(stageSize * TOMATO_RATIO)
             )
         }
@@ -440,8 +470,12 @@ private fun ProgressRing(progress: Float, modifier: Modifier = Modifier) {
 
 /** 메인은 젤리 알약, 포기/그만하기는 옆의 작은 원형 글라스 버튼. */
 @Composable
-private fun Controls(status: TimerStatus, actions: TimerActions) {
-    when (status) {
+private fun Controls(ui: TimerUiState, actions: TimerActions) {
+    if (ui.plan != null && ui.status != TimerStatus.Idle) {
+        CycleControls(ui, actions)
+        return
+    }
+    when (ui.status) {
         TimerStatus.Idle -> JellyButton(
             text = stringResource(R.string.btn_start),
             icon = TodoriIcons.Play,
@@ -472,8 +506,115 @@ private fun Controls(status: TimerStatus, actions: TimerActions) {
     }
 }
 
+/** 사이클 중 컨트롤: 집중은 일시정지+포기, 휴식은 일시정지+건너뛰기, 끝난 뒤에는 다음 단계 시작+사이클 끝내기. */
+@Composable
+private fun CycleControls(ui: TimerUiState, actions: TimerActions) {
+    when (ui.status) {
+        TimerStatus.Running, TimerStatus.Paused -> {
+            val running = ui.status == TimerStatus.Running
+            val primaryText = stringResource(if (running) R.string.btn_pause else R.string.btn_resume)
+            val primaryIcon = if (running) TodoriIcons.Pause else TodoriIcons.Play
+            val primaryAction = if (running) actions.onPause else actions.onResume
+            if (ui.isBreak) {
+                ControlRow(
+                    secondaryIcon = TodoriIcons.Skip,
+                    secondaryDescription = stringResource(R.string.btn_skip_break),
+                    onSecondary = actions.onSkipBreak,
+                    primaryText = primaryText,
+                    primaryIcon = primaryIcon,
+                    onPrimary = primaryAction
+                )
+            } else {
+                ControlRow(
+                    secondaryDescription = stringResource(R.string.btn_give_up),
+                    onSecondary = actions.onGiveUp,
+                    primaryText = primaryText,
+                    primaryIcon = primaryIcon,
+                    onPrimary = primaryAction
+                )
+            }
+        }
+        else -> ControlRow(
+            secondaryDescription = stringResource(R.string.btn_end_cycle),
+            onSecondary = actions.onStop,
+            primaryText = stringResource(
+                when (ui.phase) {
+                    TimerPhase.Focus ->
+                        if (ui.round % (ui.plan?.rounds ?: 1) == 0) R.string.btn_start_long_break else R.string.btn_start_short_break
+                    TimerPhase.ShortBreak -> R.string.btn_next_focus
+                    TimerPhase.LongBreak -> R.string.btn_new_cycle
+                }
+            ),
+            primaryIcon = if (ui.phase == TimerPhase.LongBreak) TodoriIcons.Cycle else TodoriIcons.Heart,
+            onPrimary = actions.onStartNext
+        )
+    }
+}
+
+/** 사이클 칩: 켜져 있으면 채워진 알약(사이클 ON), 프리미엄이 아니면 자물쇠. */
+@Composable
+private fun CycleChip(locked: Boolean, on: Boolean, onClick: () -> Unit) {
+    val colors = todoriColors
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(50),
+        color = if (on) colors.accentDeep else MaterialTheme.colorScheme.surface.copy(alpha = 0.75f),
+        border = BorderStroke(1.5.dp, if (on) colors.accentDeep else colors.accentLight)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(
+                imageVector = if (locked) TodoriIcons.Lock else TodoriIcons.Cycle,
+                contentDescription = null,
+                tint = if (on) Color.White else colors.accentDeep,
+                modifier = Modifier.size(16.dp)
+            )
+            Text(
+                stringResource(if (on) R.string.cycle_chip_on else R.string.cycle_chip),
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp, lineHeight = 18.sp),
+                color = if (on) Color.White else colors.accentDeep
+            )
+        }
+    }
+}
+
+/** 시간 아래에 보이는 사이클 진행: 집중 횟수만큼 점을 찍고, 지금 단계 라벨을 보여준다. */
+@Composable
+private fun CycleIndicator(ui: TimerUiState) {
+    val plan = ui.plan ?: return
+    val colors = todoriColors
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+        repeat(plan.rounds) { index ->
+            val done = index + 1 < ui.round || (index + 1 == ui.round && (ui.isBreak || ui.status == TimerStatus.Finished))
+            val current = index + 1 == ui.round && !ui.isBreak && ui.status != TimerStatus.Finished
+            Box(
+                Modifier
+                    .size(if (current) 14.dp else 10.dp)
+                    .background(
+                        color = if (done || current) colors.accentDeep else colors.accentLight.copy(alpha = 0.4f),
+                        shape = CircleShape
+                    )
+            )
+        }
+    }
+    Spacer(Modifier.height(6.dp))
+    Text(
+        text = when (ui.phase) {
+            TimerPhase.Focus -> stringResource(R.string.cycle_indicator_focus, ui.round, plan.rounds)
+            TimerPhase.ShortBreak -> stringResource(R.string.cycle_indicator_short)
+            TimerPhase.LongBreak -> stringResource(R.string.cycle_indicator_long)
+        },
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f)
+    )
+}
+
 @Composable
 private fun ControlRow(
+    secondaryIcon: ImageVector = TodoriIcons.Close,
     secondaryDescription: String,
     onSecondary: () -> Unit,
     primaryText: String,
@@ -485,16 +626,17 @@ private fun ControlRow(
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        GlassIconButton(TodoriIcons.Close, secondaryDescription, onSecondary)
+        GlassIconButton(secondaryIcon, secondaryDescription, onSecondary)
         JellyButton(primaryText, primaryIcon, onPrimary, Modifier.weight(1f))
     }
 }
 
-private fun moodOf(status: TimerStatus): TomatoMood = when (status) {
+private fun moodOf(ui: TimerUiState): TomatoMood = when (ui.status) {
     TimerStatus.Idle -> TomatoMood.Idle
     TimerStatus.Paused -> TomatoMood.Sleepy
-    TimerStatus.Finished -> TomatoMood.Happy
-    TimerStatus.Running -> TomatoMood.Focus
+    // 휴식이 끝났을 때는 신나게 뛰기보다 차분한 표정으로 다음 집중을 기다린다.
+    TimerStatus.Finished -> if (ui.isBreak) TomatoMood.Idle else TomatoMood.Happy
+    TimerStatus.Running -> if (ui.isBreak) TomatoMood.Relaxed else TomatoMood.Focus
 }
 
 /**
@@ -511,7 +653,9 @@ private fun bubbleText(ui: TimerUiState): String {
         remainingMillis = ui.remainingMillis,
         todayCount = ui.todayCount,
         totalCount = ui.totalCount,
-        hour = hour
+        hour = hour,
+        phase = ui.phase,
+        cycle = ui.plan != null
     )
     val options = stringArrayResource(key.arrayRes())
     val index = rememberSaveable(key) { AppBubbleHistory.next(key, options.size) }
@@ -541,6 +685,11 @@ private fun BubbleKey.arrayRes(): Int = when (this) {
     BubbleKey.DoneFirst -> R.array.bubble_done_first
     BubbleKey.DoneSecond -> R.array.bubble_done_second
     BubbleKey.DoneMany -> R.array.bubble_done_many
+    BubbleKey.CycleShortBreak -> R.array.bubble_cycle_short_break
+    BubbleKey.CycleLongBreak -> R.array.bubble_cycle_long_break
+    BubbleKey.CycleFocusDone -> R.array.bubble_cycle_focus_done
+    BubbleKey.CycleBreakDone -> R.array.bubble_cycle_break_done
+    BubbleKey.CycleComplete -> R.array.bubble_cycle_complete
 }
 
 @Composable

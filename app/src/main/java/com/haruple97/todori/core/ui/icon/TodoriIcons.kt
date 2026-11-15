@@ -245,6 +245,45 @@ object TodoriIcons {
         }.build()
     }
 
+    /** 건너뛰기: 삼각형과 막대. */
+    val Skip: ImageVector by lazy {
+        ImageVector.Builder("Skip", 24.dp, 24.dp, 24f, 24f).apply {
+            path(fill = Ink, stroke = Ink, strokeLineWidth = 2f, strokeLineJoin = StrokeJoin.Round) {
+                moveTo(6.5f, 6.5f)
+                lineTo(14.5f, 12f)
+                lineTo(6.5f, 17.5f)
+                close()
+            }
+            path(stroke = Ink, strokeLineWidth = 3f, strokeLineCap = StrokeCap.Round) {
+                moveTo(18f, 6.5f)
+                verticalLineTo(17.5f)
+            }
+        }.build()
+    }
+
+    /** 돌고 도는 화살표 두 개 모양의 사이클. */
+    val Cycle: ImageVector by lazy {
+        ImageVector.Builder("Cycle", 24.dp, 24.dp, 24f, 24f).apply {
+            path(
+                stroke = Ink,
+                strokeLineWidth = 2.2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round
+            ) {
+                moveTo(19f, 11f)
+                arcTo(7f, 7f, 0f, false, false, 6.2f, 7.6f)
+                moveTo(5f, 13f)
+                arcTo(7f, 7f, 0f, false, false, 17.8f, 16.4f)
+                moveTo(6.2f, 3.8f)
+                verticalLineTo(7.8f)
+                horizontalLineTo(10.2f)
+                moveTo(17.8f, 20.2f)
+                verticalLineTo(16.2f)
+                horizontalLineTo(13.8f)
+            }
+        }.build()
+    }
+
     val Heart: ImageVector by lazy {
         ImageVector.Builder("Heart", 24.dp, 24.dp, 24f, 24f).apply {
             path(fill = Ink, stroke = Ink, strokeLineWidth = 1.2f, strokeLineJoin = StrokeJoin.Round) {

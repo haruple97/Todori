@@ -156,4 +156,28 @@
     <string name="notif_long_break_running">긴 휴식 중이에요</string>
     <string name="notif_break_done_title">휴식 끝!</string>
     <string name="notif_break_done_text">다시 집중할 시간이에요.</string>
+
+    <string name="cycle_chip">사이클</string>
+    <string name="cycle_chip_on">사이클 ON</string>
+    <string name="cycle_sheet_title">뽀모도로 사이클</string>
+    <string name="cycle_sheet_hint">집중과 휴식을 번갈아 이어가요. 집중 시간은 메인 화면에서 정한 시간을 써요</string>
+    <string name="cycle_enable">사이클 켜기</string>
+    <string name="cycle_rounds">긴 휴식까지</string>
+    <string name="cycle_rounds_value">집중 %d번</string>
+    <string name="cycle_short">짧은 휴식</string>
+    <string name="cycle_long">긴 휴식</string>
+    <string name="cycle_auto">자동으로 이어가기</string>
+    <string name="cycle_auto_hint">끝나면 확인 없이 다음 단계를 바로 시작해요</string>
+    <string name="cycle_save">저장하기</string>
+    <string name="cycle_less">줄이기</string>
+    <string name="cycle_more">늘리기</string>
+    <string name="cycle_indicator_focus">집중 %1$d / %2$d</string>
+    <string name="cycle_indicator_short">짧은 휴식</string>
+    <string name="cycle_indicator_long">긴 휴식</string>
+    <string name="btn_skip_break">휴식 건너뛰기</string>
+    <string name="btn_start_short_break">짧은 휴식 시작</string>
+    <string name="btn_start_long_break">긴 휴식 시작</string>
+    <string name="btn_next_focus">다음 집중 시작</string>
+    <string name="btn_new_cycle">새 사이클 시작</string>
+    <string name="btn_end_cycle">사이클 끝내기</string>
 </resources>

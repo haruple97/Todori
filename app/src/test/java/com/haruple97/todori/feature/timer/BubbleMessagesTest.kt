@@ -1,5 +1,6 @@
 package com.haruple97.todori.feature.timer
 
+import com.haruple97.todori.core.model.TimerPhase
 import com.haruple97.todori.core.model.TimerStatus
 import kotlin.random.Random
 import org.junit.Assert.assertEquals
@@ -71,5 +72,21 @@ class BubbleMessagesTest {
             assertNotEquals(previous, current)
             previous = current
         }
+    }
+
+    @Test
+    fun `사이클 중에는 휴식 단계와 끝난 뒤 제안 문구를 고르고 집중 중에는 일반 단계 문구를 쓴다`() {
+        fun key(status: TimerStatus, phase: TimerPhase, elapsed: Long = 10_000) = bubbleKey(
+            status, 25, 25 * minute, 25 * minute - elapsed, 0, 5, 14, phase = phase, cycle = true
+        )
+
+        assertEquals(BubbleKey.CycleShortBreak, key(TimerStatus.Running, TimerPhase.ShortBreak))
+        assertEquals(BubbleKey.CycleLongBreak, key(TimerStatus.Running, TimerPhase.LongBreak))
+        assertEquals(BubbleKey.FocusStart, key(TimerStatus.Running, TimerPhase.Focus))
+        assertEquals(BubbleKey.CycleFocusDone, key(TimerStatus.Finished, TimerPhase.Focus))
+        assertEquals(BubbleKey.CycleBreakDone, key(TimerStatus.Finished, TimerPhase.ShortBreak))
+        assertEquals(BubbleKey.CycleComplete, key(TimerStatus.Finished, TimerPhase.LongBreak))
+        // 일시정지와 대기는 사이클 여부와 상관없이 기존 문구
+        assertEquals(BubbleKey.Paused, key(TimerStatus.Paused, TimerPhase.ShortBreak))
     }
 }

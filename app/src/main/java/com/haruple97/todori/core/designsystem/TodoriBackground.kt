@@ -8,9 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.lerp
+import com.haruple97.todori.core.designsystem.theme.GradientColors
 import com.haruple97.todori.core.designsystem.theme.todoriColors
 
-enum class BackgroundTone { Calm, Focus, Celebrate }
+enum class BackgroundTone { Calm, Focus, Celebrate, Rest }
 
 /** 위(밝은)→아래 세로 그라데이션 배경. 상태에 따라, 그리고 테마가 바뀔 때도 색조가 부드럽게 바뀐다. */
 @Composable
@@ -24,6 +26,8 @@ fun TodoriBackground(
         BackgroundTone.Calm -> colors.calm
         BackgroundTone.Focus -> colors.focus
         BackgroundTone.Celebrate -> colors.celebrate
+        // 휴식: 평소 배경 아래쪽을 테마의 은은한 빛깔(glow) 쪽으로 물들여 다른 상태와 구별한다.
+        BackgroundTone.Rest -> GradientColors(colors.calm.top, lerp(colors.calm.bottom, colors.glow, 0.45f))
     }
     val top by animateColorAsState(palette.top, tween(700), label = "bgTop")
     val bottom by animateColorAsState(palette.bottom, tween(700), label = "bgBottom")

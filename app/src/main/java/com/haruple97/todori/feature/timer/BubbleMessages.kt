@@ -1,5 +1,6 @@
 package com.haruple97.todori.feature.timer
 
+import com.haruple97.todori.core.model.TimerPhase
 import com.haruple97.todori.core.model.TimerStatus
 import kotlin.random.Random
 
@@ -22,7 +23,12 @@ enum class BubbleKey {
     DoneLong,
     DoneFirst,
     DoneSecond,
-    DoneMany
+    DoneMany,
+    CycleShortBreak,
+    CycleLongBreak,
+    CycleFocusDone,
+    CycleBreakDone,
+    CycleComplete
 }
 
 private const val SHORT_FOCUS_MINUTES = 15
@@ -45,13 +51,32 @@ fun bubbleKey(
     remainingMillis: Long,
     todayCount: Int,
     totalCount: Int,
-    hour: Int
-): BubbleKey = when (status) {
+    hour: Int,
+    phase: TimerPhase = TimerPhase.Focus,
+    cycle: Boolean = false
+): BubbleKey = if (cycle && status != TimerStatus.Idle && status != TimerStatus.Paused) {
+    cycleKey(status, phase, totalMillis, remainingMillis)
+} else when (status) {
     TimerStatus.Idle -> idleKey(focusMinutes, todayCount, totalCount, hour)
     TimerStatus.Paused -> BubbleKey.Paused
     TimerStatus.Running -> runningKey(totalMillis, remainingMillis)
     TimerStatus.Finished -> doneKey(totalMillis, todayCount)
 }
+
+/** 사이클 중의 문구: 휴식 중, 집중이 끝나 휴식을 제안할 때, 휴식이 끝났을 때, 사이클이 끝났을 때. 집중 중에는 일반 단계 문구를 쓴다. */
+private fun cycleKey(status: TimerStatus, phase: TimerPhase, totalMillis: Long, remainingMillis: Long): BubbleKey =
+    when (status) {
+        TimerStatus.Running -> when (phase) {
+            TimerPhase.ShortBreak -> BubbleKey.CycleShortBreak
+            TimerPhase.LongBreak -> BubbleKey.CycleLongBreak
+            TimerPhase.Focus -> runningKey(totalMillis, remainingMillis)
+        }
+        else -> when (phase) {
+            TimerPhase.Focus -> BubbleKey.CycleFocusDone
+            TimerPhase.ShortBreak -> BubbleKey.CycleBreakDone
+            TimerPhase.LongBreak -> BubbleKey.CycleComplete
+        }
+    }
 
 private fun idleKey(focusMinutes: Int, todayCount: Int, totalCount: Int, hour: Int): BubbleKey = when {
     totalCount == 0 -> BubbleKey.IdleFirst

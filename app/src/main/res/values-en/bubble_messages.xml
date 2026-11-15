@@ -110,4 +110,32 @@
         <item>Such deep focus, so impressive!</item>
         <item>A big tomato just filled your record</item>
     </string-array>
+
+    <!-- Cycle: on a break / focus done (suggest break) / break done / cycle complete -->
+    <string-array name="bubble_cycle_short_break">
+        <item>Take a breath, you did great</item>
+        <item>{name} is resting with you</item>
+        <item>How about a nice stretch?</item>
+        <item>Go grab a sip of water</item>
+    </string-array>
+    <string-array name="bubble_cycle_long_break">
+        <item>Long break, rest up well</item>
+        <item>Look far away to rest your eyes</item>
+        <item>Let\'s take it slow with {name}</item>
+    </string-array>
+    <string-array name="bubble_cycle_focus_done">
+        <item>Focus done! Time for a break?</item>
+        <item>Great job, it\'s break time</item>
+        <item>{name} turned out sweet</item>
+    </string-array>
+    <string-array name="bubble_cycle_break_done">
+        <item>Rested enough? Let\'s focus again</item>
+        <item>{name} is ready to go again!</item>
+        <item>One more round together?</item>
+    </string-array>
+    <string-array name="bubble_cycle_complete">
+        <item>Cycle complete! Amazing</item>
+        <item>A perfect lap with {name} today</item>
+        <item>You did every step, the best!</item>
+    </string-array>
 </resources>

@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.haruple97.todori.core.data.repository.SessionRepository
 import com.haruple97.todori.core.data.repository.SettingsRepository
+import com.haruple97.todori.core.model.CyclePlan
+import com.haruple97.todori.core.model.CycleSettings
 import com.haruple97.todori.core.model.TimerSettings
 import com.haruple97.todori.core.premium.PremiumRepository
 import com.haruple97.todori.core.timer.TimerEngine
@@ -42,11 +44,11 @@ class TimerViewModel @Inject constructor(
 
     val uiState: StateFlow<TimerUiState> = combine(
         engine.state,
-        combine(savedMinutes, premiumRepository.isPremium) { saved, premium ->
-            normalizedMinutes(saved, premium) to premium
+        combine(savedMinutes, premiumRepository.isPremium, settingsRepository.cycle) { saved, premium, cycle ->
+            Triple(normalizedMinutes(saved, premium), premium, cycle)
         },
         sessionStats
-    ) { timer, (focus, premium), stats ->
+    ) { timer, (focus, premium, cycle), stats ->
         TimerUiState(
             status = timer.status,
             focusMinutes = focus,
@@ -54,7 +56,11 @@ class TimerViewModel @Inject constructor(
             totalMillis = timer.totalMillis,
             remainingMillis = timer.remainingMillis,
             todayCount = stats.first,
-            totalCount = stats.second
+            totalCount = stats.second,
+            phase = timer.phase,
+            round = timer.round,
+            plan = timer.plan,
+            cycleSettings = cycle
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TimerUiState())
 
@@ -73,7 +79,25 @@ class TimerViewModel @Inject constructor(
         viewModelScope.launch { settingsRepository.markReviewRequested() }
     }
 
-    fun start() = engine.start(uiState.value.focusMinutes * MILLIS_PER_MINUTE)
+    /** 프리미엄이고 사이클이 켜져 있으면 사이클로, 아니면 일반 타이머로 시작한다. */
+    fun start() {
+        val ui = uiState.value
+        val plan = if (ui.cycleOn) {
+            val c = ui.cycleSettings
+            CyclePlan(ui.focusMinutes, c.rounds, c.shortMinutes, c.longMinutes, c.auto)
+        } else {
+            null
+        }
+        engine.start(ui.focusMinutes * MILLIS_PER_MINUTE, plan)
+    }
+
+    fun startNext() = engine.startNext()
+
+    fun skipBreak() = engine.skipBreak()
+
+    fun saveCycle(settings: CycleSettings) {
+        viewModelScope.launch { settingsRepository.setCycle(settings) }
+    }
 
     fun pause() = engine.pause()
 
