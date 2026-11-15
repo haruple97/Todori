@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    토돌이 말풍선 문구. 상황(BubbleKey)마다 묶음이 하나씩 있고, 같은 상황에서는 직전과 다른 문구가 나온다.
+    {count}는 오늘 끝낸 횟수로 바뀐다. 새 문구는 해당 묶음에 항목만 추가하면 된다.
+-->
+<resources>
+    <!-- 대기: 처음 사용 -->
+    <string-array name="bubble_idle_first">
+        <item>처음 만났네요! 반가워요</item>
+        <item>나는 토돌이! 같이 집중해봐요</item>
+        <item>토마토를 위아래로 쓸어서 시간을 골라요</item>
+        <item>첫 토마토를 같이 키워볼까요?</item>
+    </string-array>
+
+    <!-- 대기: 오늘 이미 끝낸 기록이 있을 때 -->
+    <string-array name="bubble_idle_after_done">
+        <item>오늘 벌써 {count}개나 키웠어요!</item>
+        <item>{count}개 완성! 한 번 더 해볼까요?</item>
+        <item>벌써 {count}개, 대단해요!</item>
+        <item>이 기세면 오늘 대박이에요</item>
+        <item>잠깐 쉬었다가 또 해봐요</item>
+    </string-array>
+
+    <!-- 대기: 시간대 -->
+    <string-array name="bubble_idle_morning">
+        <item>좋은 아침! 오늘의 첫 토마토 어때요?</item>
+        <item>아침 집중은 효과가 좋대요</item>
+        <item>상쾌하게 시작해봐요</item>
+        <item>오늘 하루도 말랑하게 시작해요</item>
+    </string-array>
+    <string-array name="bubble_idle_afternoon">
+        <item>나른한 오후, 토마토로 깨워봐요</item>
+        <item>점심 뒤엔 가볍게 한 번 어때요?</item>
+        <item>오후에도 같이 힘내봐요</item>
+        <item>나 준비됐어요! 시작해볼까요?</item>
+    </string-array>
+    <string-array name="bubble_idle_evening">
+        <item>하루 마무리 집중, 같이 해요</item>
+        <item>저녁에도 한 개만 키워볼까요?</item>
+        <item>못 다 한 일, 같이 정리해봐요</item>
+        <item>수고한 하루, 마지막 한 번!</item>
+    </string-array>
+    <string-array name="bubble_idle_night">
+        <item>밤이 깊었어요, 짧게 한 번만?</item>
+        <item>늦은 시간이네요, 무리하지 말아요</item>
+        <item>오늘은 가볍게 마무리해요</item>
+        <item>야식 대신 토마토 어때요?</item>
+    </string-array>
+
+    <!-- 대기: 다이얼로 고른 시간에 따라 -->
+    <string-array name="bubble_idle_short">
+        <item>가볍게 시작해봐요!</item>
+        <item>짧게 후딱 해치워요</item>
+        <item>이 정도는 금방이죠!</item>
+        <item>부담 없이 한 번만요</item>
+    </string-array>
+    <string-array name="bubble_idle_long">
+        <item>오래 집중할 준비됐나요?</item>
+        <item>든든하게 익어볼까요?</item>
+        <item>긴 집중이네요, 응원할게요!</item>
+        <item>물 한 잔 챙기고 시작해요</item>
+    </string-array>
+
+    <!-- 집중 중: 진행 단계 -->
+    <string-array name="bubble_focus_start">
+        <item>시작! 이제 집중 모드예요</item>
+        <item>좋아요, 같이 달려봐요</item>
+        <item>숨 한 번 고르고, 시작이에요</item>
+        <item>방해받지 않게 지켜줄게요</item>
+    </string-array>
+    <string-array name="bubble_focus_early">
+        <item>잘 하고 있어요</item>
+        <item>몰입 중… 방해하지 않을게요</item>
+        <item>토돌이가 천천히 익고 있어요</item>
+        <item>지금 아주 좋아요</item>
+    </string-array>
+    <string-array name="bubble_focus_middle">
+        <item>벌써 절반쯤 왔어요!</item>
+        <item>반이나 했어요, 대단해요</item>
+        <item>이 흐름 그대로 가요</item>
+        <item>토돌이가 붉어지고 있어요</item>
+    </string-array>
+    <string-array name="bubble_focus_late">
+        <item>조금만 더, 거의 다 익었어요</item>
+        <item>끝이 보여요! 힘내요</item>
+        <item>마지막 스퍼트!</item>
+    </string-array>
+    <string-array name="bubble_focus_final">
+        <item>마지막 1분! 거의 다 왔어요</item>
+        <item>곧 완성이에요, 조금만!</item>
+        <item>하나, 둘… 거의 다 익었어요</item>
+    </string-array>
+
+    <!-- 일시정지 -->
+    <string-array name="bubble_paused">
+        <item>잠깐 쉬는 중이에요</item>
+        <item>쿨쿨… 준비되면 깨워줘</item>
+        <item>천천히 해도 괜찮아요</item>
+        <item>물 한 모금 마시고 와요</item>
+    </string-array>
+
+    <!-- 완료 -->
+    <string-array name="bubble_done_first">
+        <item>오늘의 첫 토마토 완성!</item>
+        <item>짝짝! 잘 익었어요</item>
+        <item>첫 토마토 수확! 기록에 채워졌어요</item>
+    </string-array>
+    <string-array name="bubble_done_second">
+        <item>벌써 두 번째! 대단해요</item>
+        <item>연속 성공! 토마토가 늘고 있어요</item>
+        <item>오늘 두 개째, 기록에 쏙!</item>
+    </string-array>
+    <string-array name="bubble_done_many">
+        <item>오늘 {count}번째 토마토! 최고예요</item>
+        <item>{count}개째라니, 집중왕이에요</item>
+        <item>이제 푹 쉬어도 돼요</item>
+    </string-array>
+    <string-array name="bubble_done_long">
+        <item>긴 집중을 해냈어요! 정말 대단해요</item>
+        <item>오래 집중했어요, 정말 멋져요!</item>
+        <item>기록에 큼직한 토마토가 채워졌어요</item>
+    </string-array>
+</resources>

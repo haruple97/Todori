@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Todori speech bubble lines, grouped by situation (see BubbleKey). {count} is replaced with today's finished count. -->
+<resources>
+    <string-array name="bubble_idle_first">
+        <item>Nice to meet you!</item>
+        <item>I\'m Todori! Let\'s focus together</item>
+        <item>Swipe the tomato to pick your time</item>
+        <item>Shall we grow your first tomato?</item>
+    </string-array>
+
+    <string-array name="bubble_idle_after_done">
+        <item>{count} already today!</item>
+        <item>{count} done! One more?</item>
+        <item>{count} so far, amazing!</item>
+        <item>You\'re on a roll today</item>
+        <item>Take a short break, then go again</item>
+    </string-array>
+
+    <string-array name="bubble_idle_morning">
+        <item>Good morning! First tomato of the day?</item>
+        <item>Morning focus works wonders</item>
+        <item>Start fresh and bright</item>
+        <item>Let\'s begin the day softly</item>
+    </string-array>
+    <string-array name="bubble_idle_afternoon">
+        <item>Sleepy afternoon? Tomato to the rescue</item>
+        <item>A light session after lunch?</item>
+        <item>Let\'s power through the afternoon</item>
+        <item>I\'m ready! Shall we start?</item>
+    </string-array>
+    <string-array name="bubble_idle_evening">
+        <item>Let\'s wrap up the day together</item>
+        <item>One more tomato this evening?</item>
+        <item>Let\'s sort out what\'s left</item>
+        <item>A long day, one last session!</item>
+    </string-array>
+    <string-array name="bubble_idle_night">
+        <item>It\'s late, just a short one?</item>
+        <item>Don\'t overdo it tonight</item>
+        <item>Let\'s wrap up lightly today</item>
+        <item>A tomato instead of a midnight snack?</item>
+    </string-array>
+
+    <string-array name="bubble_idle_short">
+        <item>Let\'s start light!</item>
+        <item>Quick and easy</item>
+        <item>That\'s nothing for us!</item>
+        <item>No pressure, just once</item>
+    </string-array>
+    <string-array name="bubble_idle_long">
+        <item>Ready for a long focus?</item>
+        <item>Let\'s ripen nice and slow</item>
+        <item>A long one! I\'m rooting for you</item>
+        <item>Grab some water first</item>
+    </string-array>
+
+    <string-array name="bubble_focus_start">
+        <item>Here we go! Focus mode on</item>
+        <item>Alright, let\'s go together</item>
+        <item>Take a breath, and begin</item>
+        <item>I\'ll keep the distractions away</item>
+    </string-array>
+    <string-array name="bubble_focus_early">
+        <item>You\'re doing great</item>
+        <item>In the zone… I won\'t disturb you</item>
+        <item>Todori is slowly ripening</item>
+        <item>This feels just right</item>
+    </string-array>
+    <string-array name="bubble_focus_middle">
+        <item>Already halfway there!</item>
+        <item>Half done, amazing</item>
+        <item>Keep this rhythm</item>
+        <item>Todori is turning red</item>
+    </string-array>
+    <string-array name="bubble_focus_late">
+        <item>Almost there, almost ripe</item>
+        <item>The end is in sight!</item>
+        <item>Final sprint!</item>
+    </string-array>
+    <string-array name="bubble_focus_final">
+        <item>Last minute! Almost done</item>
+        <item>Almost ripe, hang in there!</item>
+        <item>One, two… nearly ripe</item>
+    </string-array>
+
+    <string-array name="bubble_paused">
+        <item>Taking a little pause</item>
+        <item>Zzz… wake me when ready</item>
+        <item>No rush, take your time</item>
+        <item>Go grab a sip of water</item>
+    </string-array>
+
+    <string-array name="bubble_done_first">
+        <item>Your first tomato today!</item>
+        <item>Yay! Perfectly ripe</item>
+        <item>First harvest! It\'s in your record</item>
+    </string-array>
+    <string-array name="bubble_done_second">
+        <item>Already the second one!</item>
+        <item>Streak! Your tomatoes are growing</item>
+        <item>Two today, filled in your record!</item>
+    </string-array>
+    <string-array name="bubble_done_many">
+        <item>Tomato #{count} today! Amazing</item>
+        <item>{count} already, you\'re a focus star</item>
+        <item>Time for a good long rest</item>
+    </string-array>
+    <string-array name="bubble_done_long">
+        <item>A long focus, well done!</item>
+        <item>Such deep focus, so impressive!</item>
+        <item>A big tomato just filled your record</item>
+    </string-array>
+</resources>

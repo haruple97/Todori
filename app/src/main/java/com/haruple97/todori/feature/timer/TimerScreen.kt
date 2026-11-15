@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.annotation.ArrayRes
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -36,6 +38,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -86,8 +89,8 @@ import com.haruple97.todori.feature.timer.component.GreetingHeader
 import com.haruple97.todori.feature.timer.component.TomatoDial
 import kotlin.math.PI
 import kotlin.math.cos
+import java.time.LocalDateTime
 import kotlin.math.sin
-import kotlin.random.Random
 import kotlinx.coroutines.delay
 
 private class TimerActions(
@@ -157,6 +160,7 @@ fun TimerScreen(
         onStop = viewModel::stop
     )
 
+    val bubble = bubbleText(ui)
     val tone = when (ui.status) {
         TimerStatus.Idle -> BackgroundTone.Calm
         TimerStatus.Running, TimerStatus.Paused -> BackgroundTone.Focus
@@ -171,9 +175,9 @@ fun TimerScreen(
                 .padding(24.dp)
         ) {
             if (twoPane) {
-                TwoPaneContent(ui, actions, maxWidth, maxHeight)
+                TwoPaneContent(ui, actions, bubble, maxWidth, maxHeight)
             } else {
-                SinglePaneContent(ui, actions, maxHeight)
+                SinglePaneContent(ui, actions, bubble)
             }
             GlassIconButton(
                 icon = TodoriIcons.Calendar,
@@ -204,37 +208,53 @@ fun TimerScreen(
     }
 }
 
+/**
+ * 인사말(위)과 버튼(아래)은 고정하고 가운데(말풍선·토마토·시간)만 남는 높이에 맞춘다.
+ * 토마토는 [MIN_STAGE]보다 작아지지 않고, 그보다 낮은 화면에서는 가운데가 스크롤된다.
+ */
 @Composable
-private fun BoxScope.SinglePaneContent(ui: TimerUiState, actions: TimerActions, height: Dp) {
+private fun BoxScope.SinglePaneContent(ui: TimerUiState, actions: TimerActions, bubble: String) {
     Column(
         modifier = Modifier
-            .align(Alignment.Center)
-            .fillMaxHeight()
-            .widthIn(max = MAX_CONTENT_WIDTH),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .align(Alignment.TopCenter)
+            .fillMaxSize()
+            .widthIn(max = MAX_CONTENT_WIDTH)
     ) {
         Spacer(Modifier.height(8.dp))
         GreetingHeader(horizontalAlignment = Alignment.Start)
-        Spacer(Modifier.weight(1f))
-        SpeechBubble(bubbleText(ui.status))
-        Spacer(Modifier.height(14.dp))
-        TomatoStage(ui, stageSize = minOf(STAGE_MAX, height * 0.36f), onMinutesChange = actions.onMinutesChange)
-        Spacer(Modifier.height(8.dp))
-        TimeAndHint(ui)
-        Spacer(Modifier.weight(1f))
+        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
+            val stageSize = (maxHeight - MIDDLE_FIXED_HEIGHT).coerceIn(MIN_STAGE, STAGE_MAX)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = maxHeight)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(Modifier.height(12.dp))
+                SpeechBubble(bubble)
+                Spacer(Modifier.height(14.dp))
+                TomatoStage(ui, stageSize = stageSize, onMinutesChange = actions.onMinutesChange)
+                Spacer(Modifier.height(8.dp))
+                TimeAndHint(ui)
+                Spacer(Modifier.height(12.dp))
+            }
+        }
+        Spacer(Modifier.height(12.dp))
         Controls(ui.status, actions)
     }
 }
 
 @Composable
-private fun TwoPaneContent(ui: TimerUiState, actions: TimerActions, width: Dp, height: Dp) {
+private fun TwoPaneContent(ui: TimerUiState, actions: TimerActions, bubble: String, width: Dp, height: Dp) {
     Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
         Column(
             modifier = Modifier.weight(1f).fillMaxHeight(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SpeechBubble(bubbleText(ui.status))
+            SpeechBubble(bubble)
             Spacer(Modifier.height(14.dp))
             TomatoStage(
                 ui = ui,
@@ -396,19 +416,47 @@ private fun moodOf(status: TimerStatus): TomatoMood = when (status) {
     TimerStatus.Running -> TomatoMood.Focus
 }
 
-/** 상태마다 준비된 문구 중 하나를 고른다. 같은 상태에서는 회전해도 같은 문구를 유지한다. */
+/**
+ * 지금 상황([bubbleKey])에 맞는 문구 묶음에서 하나를 고른다.
+ * 상황이 바뀔 때만 새로 고르고(회전해도 유지), 같은 상황에서는 직전과 다른 문구가 나온다.
+ */
 @Composable
-private fun bubbleText(status: TimerStatus): String {
-    val options = stringArrayResource(
-        when (status) {
-            TimerStatus.Idle -> R.array.bubble_idle
-            TimerStatus.Running -> R.array.bubble_focus
-            TimerStatus.Paused -> R.array.bubble_paused
-            TimerStatus.Finished -> R.array.bubble_done
-        }
+private fun bubbleText(ui: TimerUiState): String {
+    val hour = remember { LocalDateTime.now().hour }
+    val key = bubbleKey(
+        status = ui.status,
+        focusMinutes = ui.focusMinutes,
+        totalMillis = ui.totalMillis,
+        remainingMillis = ui.remainingMillis,
+        todayCount = ui.todayCount,
+        totalCount = ui.totalCount,
+        hour = hour
     )
-    val seed = rememberSaveable(status) { Random.nextInt(1000) }
-    return options[seed % options.size]
+    val options = stringArrayResource(key.arrayRes())
+    val index = rememberSaveable(key) { AppBubbleHistory.next(key, options.size) }
+    return options[index % options.size].replace("{count}", ui.todayCount.toString())
+}
+
+@ArrayRes
+private fun BubbleKey.arrayRes(): Int = when (this) {
+    BubbleKey.IdleFirst -> R.array.bubble_idle_first
+    BubbleKey.IdleAfterDone -> R.array.bubble_idle_after_done
+    BubbleKey.IdleMorning -> R.array.bubble_idle_morning
+    BubbleKey.IdleAfternoon -> R.array.bubble_idle_afternoon
+    BubbleKey.IdleEvening -> R.array.bubble_idle_evening
+    BubbleKey.IdleNight -> R.array.bubble_idle_night
+    BubbleKey.IdleShort -> R.array.bubble_idle_short
+    BubbleKey.IdleLong -> R.array.bubble_idle_long
+    BubbleKey.FocusStart -> R.array.bubble_focus_start
+    BubbleKey.FocusEarly -> R.array.bubble_focus_early
+    BubbleKey.FocusMiddle -> R.array.bubble_focus_middle
+    BubbleKey.FocusLate -> R.array.bubble_focus_late
+    BubbleKey.FocusFinal -> R.array.bubble_focus_final
+    BubbleKey.Paused -> R.array.bubble_paused
+    BubbleKey.DoneLong -> R.array.bubble_done_long
+    BubbleKey.DoneFirst -> R.array.bubble_done_first
+    BubbleKey.DoneSecond -> R.array.bubble_done_second
+    BubbleKey.DoneMany -> R.array.bubble_done_many
 }
 
 @Composable
@@ -419,9 +467,13 @@ private fun timeText(ui: TimerUiState): String = when (ui.status) {
 }
 
 private val STAGE_MAX = 290.dp
+private val MIN_STAGE = 200.dp
 private val STAGE_MAX_WIDE = 360.dp
 private val MAX_CONTENT_WIDTH = 480.dp
 private val BUBBLE_RESERVED_HEIGHT = 84.dp
+
+/** 가운데 영역에서 토마토를 뺀 나머지(말풍선·간격·시간·안내문)가 차지하는 대략의 높이. */
+private val MIDDLE_FIXED_HEIGHT = 200.dp
 private const val DIAL_RATIO = 0.76f
 private const val TOMATO_RATIO = 0.72f
 private const val RAIL_RATIO = 0.62f

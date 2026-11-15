@@ -1,5 +1,11 @@
 package com.haruple97.todori.core.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -62,15 +68,23 @@ fun SpeechBubble(text: String, modifier: Modifier = Modifier) {
             .shadow(4.dp, shape)
             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.92f), shape)
             .border(1.5.dp, JellyPinkLight, shape)
+            // 문구 길이가 바뀌어도 크기가 부드럽게 따라가게 한다. 그림자가 잘리지 않도록 가장 안쪽에 둔다.
+            .animateContentSize()
     ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .widthIn(max = 280.dp)
-                .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 12.dp + TailHeight)
-        )
+        AnimatedContent(
+            targetState = text,
+            transitionSpec = { fadeIn(tween(250)) togetherWith fadeOut(tween(150)) },
+            label = "bubbleText"
+        ) { current ->
+            Text(
+                text = current,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .widthIn(max = 280.dp)
+                    .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 12.dp + TailHeight)
+            )
+        }
     }
 }
