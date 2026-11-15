@@ -1,5 +1,6 @@
 package com.haruple97.todori.feature.record.component
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -23,11 +25,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.haruple97.todori.R
+import com.haruple97.todori.core.designsystem.theme.JellyPinkDeep
 import com.haruple97.todori.core.designsystem.theme.JellyPinkLight
 import com.haruple97.todori.core.model.SessionRecord
+import com.haruple97.todori.core.ui.GlassIconButton
 import com.haruple97.todori.core.ui.MiniTomato
 import com.haruple97.todori.core.ui.TomatoCharacter
 import com.haruple97.todori.core.ui.TomatoMood
+import com.haruple97.todori.core.ui.icon.TodoriIcons
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -89,22 +94,34 @@ private fun formatFocusMinutes(totalMinutes: Int): String {
     }
 }
 
-/** 선택한 날짜에 채워진 토마토와 완료 시각 목록. */
+/**
+ * 선택한 날짜에 채워진 토마토와 완료 시각 목록.
+ * 줄마다 휴지통으로 바로 지울 수 있고(되돌리기 제공), 2개 이상이면 그날 전체 삭제도 나온다.
+ */
 @Composable
-fun DayDetail(date: LocalDate, sessions: List<SessionRecord>, zone: ZoneId, modifier: Modifier = Modifier) {
+fun DayDetail(
+    date: LocalDate,
+    sessions: List<SessionRecord>,
+    zone: ZoneId,
+    onDelete: (SessionRecord) -> Unit,
+    onDeleteAll: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val locale = LocalConfiguration.current.locales[0]
     val dayPattern = stringResource(R.string.day_pattern)
     val title = remember(date, dayPattern, locale) { date.format(DateTimeFormatter.ofPattern(dayPattern, locale)) }
     val timeFormatter = remember(locale) { DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale) }
+    val deleteDescription = stringResource(R.string.record_delete)
 
-    SoftCard(modifier.fillMaxWidth()) {
-        Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    SoftCard(modifier.fillMaxWidth().animateContentSize()) {
+        Column(Modifier.padding(start = 18.dp, end = 12.dp, top = 18.dp, bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
             if (sessions.isEmpty()) {
                 Text(
                     text = stringResource(R.string.record_day_empty),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(bottom = 6.dp)
                 )
             } else {
                 Text(
@@ -130,6 +147,21 @@ fun DayDetail(date: LocalDate, sessions: List<SessionRecord>, zone: ZoneId, modi
                             text = stringResource(R.string.minutes_format, session.durationMinutes),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.onSurface
+                        )
+                        GlassIconButton(
+                            icon = TodoriIcons.Trash,
+                            contentDescription = deleteDescription,
+                            onClick = { onDelete(session) },
+                            size = 40.dp
+                        )
+                    }
+                }
+                if (sessions.size > 1) {
+                    TextButton(onClick = onDeleteAll, modifier = Modifier.align(Alignment.End)) {
+                        Text(
+                            text = stringResource(R.string.record_delete_day),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 13.sp),
+                            color = JellyPinkDeep
                         )
                     }
                 }

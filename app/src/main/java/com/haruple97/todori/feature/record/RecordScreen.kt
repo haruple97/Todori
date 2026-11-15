@@ -17,15 +17,30 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -35,6 +50,9 @@ import androidx.window.core.layout.WindowSizeClass
 import com.haruple97.todori.R
 import com.haruple97.todori.core.designsystem.BackgroundTone
 import com.haruple97.todori.core.designsystem.TodoriBackground
+import com.haruple97.todori.core.designsystem.theme.JellyPinkDeep
+import com.haruple97.todori.core.designsystem.theme.JellyPinkLight
+import com.haruple97.todori.core.model.SessionRecord
 import com.haruple97.todori.core.ui.FloatingDecor
 import com.haruple97.todori.core.ui.GlassIconButton
 import com.haruple97.todori.core.ui.icon.TodoriIcons
@@ -44,6 +62,7 @@ import com.haruple97.todori.feature.record.component.MonthCalendar
 import com.haruple97.todori.feature.record.component.RecordSummary
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.launch
 
 private val MAX_CONTENT_WIDTH = 480.dp
 private val TOP_BAR_HEIGHT = 48.dp
@@ -54,7 +73,9 @@ private class RecordActions(
     val onBack: () -> Unit,
     val onPreviousMonth: () -> Unit,
     val onNextMonth: () -> Unit,
-    val onSelect: (java.time.LocalDate) -> Unit
+    val onSelect: (java.time.LocalDate) -> Unit,
+    val onDelete: (SessionRecord) -> Unit,
+    val onDeleteDay: () -> Unit
 )
 
 @Composable
@@ -67,7 +88,39 @@ fun RecordScreen(
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     val twoPane = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) &&
         !windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_EXPANDED_LOWER_BOUND)
-    val actions = RecordActions(onBack, viewModel::previousMonth, viewModel::nextMonth, viewModel::select)
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    var confirmDeleteDay by rememberSaveable { mutableStateOf(false) }
+    val actions = RecordActions(
+        onBack = onBack,
+        onPreviousMonth = viewModel::previousMonth,
+        onNextMonth = viewModel::nextMonth,
+        onSelect = viewModel::select,
+        onDelete = { viewModel.delete(listOf(it)) },
+        onDeleteDay = { confirmDeleteDay = true }
+    )
+
+    // 삭제가 끝나면 되돌리기 스낵바를 띄운다. 확인 창 대신 되돌리기로 실수를 막는다.
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            if (event is RecordEvent.Deleted) {
+                snackbarHostState.currentSnackbarData?.dismiss()
+                launch {
+                    val message = if (event.sessions.size == 1) {
+                        context.getString(R.string.record_deleted_one)
+                    } else {
+                        context.getString(R.string.record_deleted_many, event.sessions.size)
+                    }
+                    val result = snackbarHostState.showSnackbar(
+                        message = message,
+                        actionLabel = context.getString(R.string.record_undo),
+                        duration = SnackbarDuration.Long
+                    )
+                    if (result == SnackbarResult.ActionPerformed) viewModel.undoDelete(event.sessions)
+                }
+            }
+        }
+    }
 
     TodoriBackground(BackgroundTone.Calm, modifier.fillMaxSize()) {
         FloatingDecor()
@@ -81,6 +134,57 @@ fun RecordScreen(
                 TwoPane(ui, actions, maxWidth, maxHeight)
             } else {
                 SinglePane(ui, actions, minOf(maxWidth, MAX_CONTENT_WIDTH))
+            }
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter).widthIn(max = MAX_CONTENT_WIDTH)
+            ) { data -> CuteSnackbar(data) }
+        }
+    }
+
+    if (confirmDeleteDay) {
+        val sessions = ui.selectedSessions
+        AlertDialog(
+            onDismissRequest = { confirmDeleteDay = false },
+            title = { Text(stringResource(R.string.record_delete_day_title)) },
+            text = { Text(stringResource(R.string.record_delete_day_message, sessions.size)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmDeleteDay = false
+                    viewModel.delete(sessions)
+                }) { Text(stringResource(R.string.record_delete_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmDeleteDay = false }) { Text(stringResource(R.string.dialog_cancel)) }
+            }
+        )
+    }
+}
+
+@Composable
+private fun CuteSnackbar(data: SnackbarData) {
+    // 기본 Snackbar는 바깥 여백 때문에 테두리가 이중으로 보여, 본체에만 테두리를 두도록 직접 그린다.
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.5.dp, JellyPinkLight),
+        shadowElevation = 6.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(start = 18.dp, end = 6.dp, top = 2.dp, bottom = 2.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = data.visuals.message,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+            data.visuals.actionLabel?.let { label ->
+                TextButton(onClick = { data.performAction() }) {
+                    Text(label, style = MaterialTheme.typography.labelLarge, color = JellyPinkDeep)
+                }
             }
         }
     }
@@ -99,8 +203,9 @@ private fun BoxScope.SinglePane(ui: RecordUiState, actions: RecordActions, conte
         TopBar(actions.onBack)
         RecordSummary(ui.totalCount, ui.totalMinutes, ui.streak)
         CalendarSection(ui, actions, cellSize = contentWidth / 7, modifier = Modifier.align(Alignment.CenterHorizontally))
-        DetailSection(ui)
-        Spacer(Modifier.height(8.dp))
+        DetailSection(ui, actions)
+        // 하단 스낵바에 마지막 줄이 가려지지 않도록 여유를 둔다.
+        Spacer(Modifier.height(72.dp))
     }
 }
 
@@ -122,7 +227,8 @@ private fun TwoPane(ui: RecordUiState, actions: RecordActions, width: Dp, height
         ) {
             TopBar(actions.onBack)
             RecordSummary(ui.totalCount, ui.totalMinutes, ui.streak)
-            DetailSection(ui)
+            DetailSection(ui, actions)
+            Spacer(Modifier.height(72.dp))
         }
     }
 }
@@ -185,10 +291,16 @@ private fun CalendarSection(ui: RecordUiState, actions: RecordActions, cellSize:
 }
 
 @Composable
-private fun DetailSection(ui: RecordUiState) {
+private fun DetailSection(ui: RecordUiState, actions: RecordActions) {
     if (ui.totalCount == 0) {
         EmptyRecordHint()
     } else {
-        DayDetail(date = ui.selected, sessions = ui.selectedSessions, zone = ZoneId.systemDefault())
+        DayDetail(
+            date = ui.selected,
+            sessions = ui.selectedSessions,
+            zone = ZoneId.systemDefault(),
+            onDelete = actions.onDelete,
+            onDeleteAll = actions.onDeleteDay
+        )
     }
 }

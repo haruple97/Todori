@@ -10,6 +10,9 @@ interface SessionDao {
     @Insert
     suspend fun insert(session: SessionEntity)
 
+    @Query("DELETE FROM sessions WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<Long>)
+
     @Query("SELECT * FROM sessions ORDER BY completedAtMillis DESC")
     fun observeAll(): Flow<List<SessionEntity>>
 }

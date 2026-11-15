@@ -65,6 +65,15 @@
     <string name="record_cell_description">%1$s, %2$d tomatoes</string>
     <string name="record_day_summary">%1$d tomatoes · %2$s</string>
     <string name="record_day_empty">No tomatoes on this day</string>
+    <string name="record_delete">Delete this tomato record</string>
+    <string name="record_delete_day">Delete all records for this day</string>
+    <string name="record_deleted_one">Tomato record deleted</string>
+    <string name="record_deleted_many">%d tomato records deleted</string>
+    <string name="record_undo">Undo</string>
+    <string name="record_delete_day_title">Delete all records for this day?</string>
+    <string name="record_delete_day_message">%d tomato records will be removed. You can still undo right after.</string>
+    <string name="record_delete_confirm">Delete</string>
+    <string name="dialog_cancel">Cancel</string>
     <string name="record_empty_title">No tomatoes yet</string>
     <string name="record_empty_hint">Every finished focus session\nfills in one tomato</string>
     <string name="done_label">Done!</string>

@@ -44,6 +44,7 @@ private class FakeSessions : SessionRepository {
     val records = mutableListOf<SessionRecord>()
     override val sessions: Flow<List<SessionRecord>> = flowOf(emptyList())
     override suspend fun record(session: SessionRecord) { records += session }
+    override suspend fun delete(ids: List<Long>) { records.removeAll { it.id in ids } }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)

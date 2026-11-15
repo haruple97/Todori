@@ -115,6 +115,37 @@ object TodoriIcons {
         }.build()
     }
 
+    /** 뚜껑과 손잡이가 둥근 휴지통. */
+    val Trash: ImageVector by lazy {
+        ImageVector.Builder("Trash", 24.dp, 24.dp, 24f, 24f).apply {
+            path(
+                stroke = Ink,
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round
+            ) {
+                moveTo(4.5f, 7f)
+                horizontalLineTo(19.5f)
+                moveTo(9.5f, 7f)
+                verticalLineTo(5.6f)
+                arcTo(1.6f, 1.6f, 0f, false, true, 11.1f, 4f)
+                horizontalLineTo(12.9f)
+                arcTo(1.6f, 1.6f, 0f, false, true, 14.5f, 5.6f)
+                verticalLineTo(7f)
+                moveTo(6.5f, 7f)
+                lineTo(7.3f, 18.4f)
+                arcTo(2f, 2f, 0f, false, false, 9.3f, 20.2f)
+                horizontalLineTo(14.7f)
+                arcTo(2f, 2f, 0f, false, false, 16.7f, 18.4f)
+                lineTo(17.5f, 7f)
+                moveTo(10.4f, 10.6f)
+                verticalLineTo(16.2f)
+                moveTo(13.6f, 10.6f)
+                verticalLineTo(16.2f)
+            }
+        }.build()
+    }
+
     val Heart: ImageVector by lazy {
         ImageVector.Builder("Heart", 24.dp, 24.dp, 24f, 24f).apply {
             path(fill = Ink, stroke = Ink, strokeLineWidth = 1.2f, strokeLineJoin = StrokeJoin.Round) {

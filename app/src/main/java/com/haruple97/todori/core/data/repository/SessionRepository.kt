@@ -11,7 +11,10 @@ import kotlinx.coroutines.flow.map
 
 interface SessionRepository {
     val sessions: Flow<List<SessionRecord>>
+    /** 새 기록을 남긴다. id가 이미 있는 기록(삭제 되돌리기)은 같은 id로 다시 들어간다. */
     suspend fun record(session: SessionRecord)
+
+    suspend fun delete(ids: List<Long>)
 }
 
 @Singleton
@@ -22,4 +25,6 @@ class SessionRepositoryImpl @Inject constructor(
         dao.observeAll().map { list -> list.map { it.toModel() } }
 
     override suspend fun record(session: SessionRecord) = dao.insert(session.toEntity())
+
+    override suspend fun delete(ids: List<Long>) = dao.deleteByIds(ids)
 }

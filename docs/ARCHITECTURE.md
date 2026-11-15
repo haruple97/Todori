@@ -26,6 +26,8 @@
 - 집중이 끝나면 `TimerEngine`이 `SessionRepository`에 완료 기록을 남기고, `feature/record`가 그 Flow를 구독해 월 달력에 토마토를 채운다.
 - 날짜 묶기·연속 일수·달력 격자는 `RecordLogic.kt`의 순수 함수(단위 테스트 있음)로 두고, ViewModel은 상태 조합만 한다.
 - 타이머 화면 → 기록 화면은 `navigation/TodoriNavHost.kt`의 `RecordRoute`로 이동한다.
+- 삭제: 기록 줄의 휴지통으로 즉시 삭제하고 되돌리기 스낵바를 띄운다(확인 창 없음). 그날 2개 이상이면 "모두 삭제"가 있고 이것만 확인 창을 거친다. 되돌리기는 같은 id로 다시 넣는다(`RecordViewModel.undoDelete`).
+- 삭제·되돌리기도 완료 기록의 개수/마지막 시각 변화로 감지해 위젯이 갱신된다(`updateAll`은 각각 별도 코루틴으로 실행).
 
 ## 홈 화면 위젯
 - `widget/`: Jetpack Glance(`glance-appwidget`)로 만든 "이번 주 토마토" 위젯. 일~토 7일에 토마토를 채워 보여주고, 크기(작게/넓게)에 따라 레이아웃이 바뀐다(`SizeMode.Responsive`).
