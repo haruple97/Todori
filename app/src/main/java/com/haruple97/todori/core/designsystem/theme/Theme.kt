@@ -2,43 +2,29 @@ package com.haruple97.todori.core.designsystem.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import com.haruple97.todori.core.model.SkinId
+import com.haruple97.todori.core.model.ThemeId
 
-private val DarkColorScheme = darkColorScheme(
-    primary = CoralPinkDark,
-    onPrimary = Color(0xFF4A1F2A),
-    secondary = LeafGreen,
-    background = CreamBackgroundDark,
-    onBackground = CocoaTextDark,
-    surface = CreamBackgroundDark,
-    onSurface = CocoaTextDark,
-    surfaceVariant = PeachCardDark,
-    onSurfaceVariant = CoralPinkDark
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = CoralPink,
-    onPrimary = Color.White,
-    secondary = LeafGreenDeep,
-    background = CreamBackground,
-    onBackground = CocoaText,
-    surface = CreamBackground,
-    onSurface = CocoaText,
-    surfaceVariant = PeachCard,
-    onSurfaceVariant = Color(0xFFD9627C)
-)
+/** 어두운 모양으로 그려지는지. 항상 어두운 테마이거나 시스템이 어두운 모드일 때. */
+@Composable
+fun isDarkFor(theme: ThemeId): Boolean = theme.alwaysDark || isSystemInDarkTheme()
 
 @Composable
 fun TodoriTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    theme: ThemeId = ThemeId.Pink,
+    skin: SkinId = SkinId.Tomato,
     content: @Composable () -> Unit
 ) {
-    MaterialTheme(
-        colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
-        typography = Typography,
-        content = content
-    )
+    val dark = isDarkFor(theme)
+    val colors = remember(theme, dark) { todoriColors(theme, dark) }
+    CompositionLocalProvider(LocalTodoriColors provides colors, LocalSkin provides skin) {
+        MaterialTheme(
+            colorScheme = colors.scheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }

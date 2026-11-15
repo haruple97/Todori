@@ -16,26 +16,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import com.haruple97.todori.core.designsystem.theme.JellyPinkLight
-import com.haruple97.todori.core.designsystem.theme.Lavender
-import com.haruple97.todori.core.designsystem.theme.PeachGlow
+import com.haruple97.todori.core.designsystem.theme.todoriColors
 import kotlin.math.PI
 import kotlin.math.sin
 
 private enum class DecorKind { Heart, Sparkle, Dot }
 
-private class Decor(val x: Float, val y: Float, val size: Float, val speed: Float, val phase: Float, val kind: DecorKind, val color: Color)
+private class Decor(val x: Float, val y: Float, val size: Float, val speed: Float, val phase: Float, val kind: DecorKind, val colorIndex: Int)
 
 private val Decors = listOf(
-    Decor(0.08f, 0.15f, 0.014f, 0.10f, 0.0f, DecorKind.Heart, JellyPinkLight),
-    Decor(0.90f, 0.22f, 0.012f, 0.08f, 0.3f, DecorKind.Sparkle, PeachGlow),
-    Decor(0.18f, 0.48f, 0.010f, 0.12f, 0.6f, DecorKind.Dot, Lavender),
-    Decor(0.84f, 0.55f, 0.016f, 0.09f, 0.1f, DecorKind.Heart, PeachGlow),
-    Decor(0.50f, 0.08f, 0.010f, 0.11f, 0.8f, DecorKind.Sparkle, Lavender),
-    Decor(0.06f, 0.78f, 0.012f, 0.10f, 0.4f, DecorKind.Sparkle, JellyPinkLight),
-    Decor(0.93f, 0.85f, 0.010f, 0.13f, 0.7f, DecorKind.Dot, JellyPinkLight),
-    Decor(0.35f, 0.92f, 0.014f, 0.08f, 0.2f, DecorKind.Heart, Lavender),
-    Decor(0.70f, 0.35f, 0.009f, 0.12f, 0.9f, DecorKind.Dot, PeachGlow)
+    Decor(0.08f, 0.15f, 0.014f, 0.10f, 0.0f, DecorKind.Heart, 0),
+    Decor(0.90f, 0.22f, 0.012f, 0.08f, 0.3f, DecorKind.Sparkle, 1),
+    Decor(0.18f, 0.48f, 0.010f, 0.12f, 0.6f, DecorKind.Dot, 2),
+    Decor(0.84f, 0.55f, 0.016f, 0.09f, 0.1f, DecorKind.Heart, 1),
+    Decor(0.50f, 0.08f, 0.010f, 0.11f, 0.8f, DecorKind.Sparkle, 2),
+    Decor(0.06f, 0.78f, 0.012f, 0.10f, 0.4f, DecorKind.Sparkle, 0),
+    Decor(0.93f, 0.85f, 0.010f, 0.13f, 0.7f, DecorKind.Dot, 0),
+    Decor(0.35f, 0.92f, 0.014f, 0.08f, 0.2f, DecorKind.Heart, 2),
+    Decor(0.70f, 0.35f, 0.009f, 0.12f, 0.9f, DecorKind.Dot, 1)
 )
 
 /** 배경에서 천천히 떠다니는 하트·반짝이·점. 시스템 애니메이션이 꺼져 있으면 멈춘다. */
@@ -52,6 +50,7 @@ fun FloatingDecor(modifier: Modifier = Modifier) {
         animationSpec = infiniteRepeatable(tween(24_000, easing = LinearEasing), RepeatMode.Restart),
         label = "decorT"
     )
+    val palette = todoriColors.decor
     Canvas(modifier.fillMaxSize()) {
         val progress = if (reduceMotion) 0f else t
         val m = minOf(size.width, size.height)
@@ -59,7 +58,7 @@ fun FloatingDecor(modifier: Modifier = Modifier) {
             val yFrac = ((d.y - progress * d.speed * 4f) % 1f + 1f) % 1f
             val sway = sin((progress * 2f + d.phase) * 2f * PI.toFloat()) * 0.015f
             val center = Offset((d.x + sway) * size.width, yFrac * size.height)
-            val color = d.color.copy(alpha = 0.45f)
+            val color = palette[d.colorIndex % palette.size].copy(alpha = 0.45f)
             val s = d.size * m * 2f
             when (d.kind) {
                 DecorKind.Heart -> drawHeart(center, s, color)

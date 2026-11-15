@@ -25,8 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.haruple97.todori.R
-import com.haruple97.todori.core.designsystem.theme.JellyPinkDeep
-import com.haruple97.todori.core.designsystem.theme.JellyPinkLight
+import com.haruple97.todori.core.designsystem.theme.todoriColors
 import com.haruple97.todori.core.model.SessionRecord
 import com.haruple97.todori.core.ui.GlassIconButton
 import com.haruple97.todori.core.ui.MiniTomato
@@ -45,7 +44,7 @@ private fun SoftCard(modifier: Modifier = Modifier, content: @Composable () -> U
         modifier = modifier,
         shape = RoundedCornerShape(24.dp),
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
-        border = BorderStroke(1.5.dp, JellyPinkLight),
+        border = BorderStroke(1.5.dp, todoriColors.accentLight),
         content = content
     )
 }
@@ -161,7 +160,7 @@ fun DayDetail(
                         Text(
                             text = stringResource(R.string.record_delete_day),
                             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 13.sp),
-                            color = JellyPinkDeep
+                            color = todoriColors.accentDeep
                         )
                     }
                 }

@@ -37,8 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.haruple97.todori.R
-import com.haruple97.todori.core.designsystem.theme.JellyPinkDeep
-import com.haruple97.todori.core.designsystem.theme.JellyPinkLight
+import com.haruple97.todori.core.designsystem.theme.todoriColors
 import com.haruple97.todori.core.model.SessionRecord
 import com.haruple97.todori.core.ui.MiniTomato
 import com.haruple97.todori.feature.record.monthGrid
@@ -128,7 +127,7 @@ private fun DayCell(
                 if (isSelected) {
                     Modifier
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.9f))
-                        .border(1.5.dp, JellyPinkLight, shape)
+                        .border(1.5.dp, todoriColors.accentLight, shape)
                 } else {
                     Modifier
                 }
@@ -143,7 +142,7 @@ private fun DayCell(
                 fontWeight = if (date == today) FontWeight.ExtraBold else FontWeight.Medium
             ),
             color = when {
-                date == today -> JellyPinkDeep
+                date == today -> todoriColors.accentDeep
                 isFuture -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.28f)
                 else -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
             },
@@ -176,7 +175,7 @@ private fun PoppingTomato(size: Dp, modifier: Modifier = Modifier) {
 @Composable
 private fun CountBadge(count: Int, modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier.padding(3.dp).size(15.dp).background(JellyPinkDeep, CircleShape),
+        modifier = modifier.padding(3.dp).size(15.dp).background(todoriColors.accentDeep, CircleShape),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -189,9 +188,10 @@ private fun CountBadge(count: Int, modifier: Modifier = Modifier) {
 
 @Composable
 private fun EmptySlot(size: Dp, modifier: Modifier = Modifier) {
+    val lightColor = todoriColors.accentLight
     Canvas(modifier.size(size)) {
         drawCircle(
-            color = JellyPinkLight.copy(alpha = 0.7f),
+            color = lightColor.copy(alpha = 0.7f),
             radius = this.size.minDimension / 2f - 1.dp.toPx(),
             style = Stroke(width = 1.2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f)))
         )

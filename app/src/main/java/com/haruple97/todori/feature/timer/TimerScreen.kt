@@ -73,9 +73,7 @@ import com.haruple97.todori.core.designsystem.BackgroundTone
 import com.haruple97.todori.core.designsystem.TodoriBackground
 import com.haruple97.todori.core.review.findActivity
 import com.haruple97.todori.core.review.requestInAppReview
-import com.haruple97.todori.core.designsystem.theme.JellyPinkDeep
-import com.haruple97.todori.core.designsystem.theme.JellyPinkLight
-import com.haruple97.todori.core.designsystem.theme.PeachGlow
+import com.haruple97.todori.core.designsystem.theme.todoriColors
 import com.haruple97.todori.core.model.TimerStatus
 import com.haruple97.todori.core.ui.ConfettiBurst
 import com.haruple97.todori.core.ui.FloatingDecor
@@ -336,11 +334,14 @@ private fun TomatoStage(ui: TimerUiState, stageSize: Dp, onMinutesChange: (Int) 
     }
 }
 
-/** 핑크 스윕 그라데이션 링. 진행 끝에 하트가 달려 따라간다. */
+/** 테마 색 스윕 그라데이션 링. 진행 끝에 하트가 달려 따라간다. */
 @Composable
 private fun ProgressRing(progress: Float, modifier: Modifier = Modifier) {
     val animated by animateFloatAsState(progress, tween(TICK_MILLIS.toInt(), easing = LinearEasing), label = "ring")
     val track = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+    val colors = todoriColors
+    val deep = colors.accentDeep
+    val sweep = listOf(deep, colors.accentLight, colors.glow, colors.accentLight, deep)
     Canvas(modifier) {
         val stroke = 14.dp.toPx()
         val arcSize = Size(size.width - stroke, size.height - stroke)
@@ -350,9 +351,7 @@ private fun ProgressRing(progress: Float, modifier: Modifier = Modifier) {
             rotate(-90f) {
                 drawArc(
                     // 시작·끝 색을 같게 해서 한 바퀴를 채웠을 때 이음새가 보이지 않게 한다.
-                    brush = Brush.sweepGradient(
-                        listOf(JellyPinkDeep, JellyPinkLight, PeachGlow, JellyPinkLight, JellyPinkDeep)
-                    ),
+                    brush = Brush.sweepGradient(sweep),
                     startAngle = 0f,
                     sweepAngle = 360f * animated,
                     useCenter = false,
@@ -365,7 +364,7 @@ private fun ProgressRing(progress: Float, modifier: Modifier = Modifier) {
             val angle = (-90f + 360f * animated) * PI.toFloat() / 180f
             val head = Offset(center.x + radius * cos(angle), center.y + radius * sin(angle))
             drawCircle(Color.White, radius = stroke * 0.95f, center = head)
-            drawHeart(head, stroke * 0.5f, JellyPinkDeep)
+            drawHeart(head, stroke * 0.5f, deep)
         }
     }
 }

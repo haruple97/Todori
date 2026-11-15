@@ -26,8 +26,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.haruple97.todori.R
-import com.haruple97.todori.core.designsystem.theme.JellyPinkDeep
-import com.haruple97.todori.core.designsystem.theme.JellyPinkLight
+import com.haruple97.todori.core.designsystem.theme.todoriColors
 import com.haruple97.todori.feature.timer.DialStepMinutes
 import kotlin.math.roundToInt
 
@@ -54,6 +53,8 @@ fun DialRail(
     val onChange by rememberUpdatedState(onMinutesChange)
     val haptics = LocalHapticFeedback.current
     val description = stringResource(R.string.minutes_format, minutes)
+    val light = todoriColors.accentLight
+    val deep = todoriColors.accentDeep
 
     Box(
         modifier = modifier
@@ -92,19 +93,19 @@ fun DialRail(
             fun y(i: Float) = size.height - r - usable * (i / lastIndex)
 
             drawLine(
-                color = JellyPinkLight.copy(alpha = 0.5f),
+                color = light.copy(alpha = 0.5f),
                 start = Offset(r, r),
                 end = Offset(r, size.height - r),
                 strokeWidth = 3.dp.toPx(),
                 cap = StrokeCap.Round
             )
             for (i in 0..lastIndex) {
-                drawCircle(JellyPinkLight, radius = 2.5.dp.toPx(), center = Offset(r, y(i.toFloat())))
+                drawCircle(light, radius = 2.5.dp.toPx(), center = Offset(r, y(i.toFloat())))
             }
             val thumb = Offset(r, y(position))
-            drawCircle(JellyPinkDeep.copy(alpha = 0.25f), radius = r * 1.4f, center = thumb)
+            drawCircle(deep.copy(alpha = 0.25f), radius = r * 1.4f, center = thumb)
             drawCircle(Color.White, radius = r, center = thumb)
-            drawCircle(JellyPinkDeep, radius = r * 0.62f, center = thumb)
+            drawCircle(deep, radius = r * 0.62f, center = thumb)
         }
     }
 }

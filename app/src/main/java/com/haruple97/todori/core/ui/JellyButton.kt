@@ -44,8 +44,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.haruple97.todori.core.designsystem.theme.JellyPinkDeep
-import com.haruple97.todori.core.designsystem.theme.JellyPinkLight
+import com.haruple97.todori.core.designsystem.theme.todoriColors
 
 private val ButtonHeight = 60.dp
 
@@ -74,12 +73,16 @@ private fun Modifier.jellyPress(
         }
 }
 
-private fun Modifier.glow(shape: Shape): Modifier = shadow(
-    elevation = 14.dp,
-    shape = shape,
-    ambientColor = JellyPinkDeep.copy(alpha = 0.45f),
-    spotColor = JellyPinkDeep.copy(alpha = 0.75f)
-)
+@Composable
+private fun Modifier.glow(shape: Shape): Modifier {
+    val deep = todoriColors.accentDeep
+    return shadow(
+        elevation = 14.dp,
+        shape = shape,
+        ambientColor = deep.copy(alpha = 0.45f),
+        spotColor = deep.copy(alpha = 0.75f)
+    )
+}
 
 /** 그라데이션 + 상단 광택 + 핑크 글로우의 알약형 메인 버튼. */
 @Composable
@@ -97,7 +100,7 @@ fun JellyButton(
             .jellyPress(source, onClick = onClick)
             .glow(shape)
             .clip(shape)
-            .background(Brush.verticalGradient(listOf(JellyPinkLight, JellyPinkDeep)))
+            .background(Brush.verticalGradient(listOf(todoriColors.accentLight, todoriColors.accentDeep)))
             .drawWithContent {
                 drawRoundRect(
                     brush = Brush.verticalGradient(
@@ -142,15 +145,15 @@ fun GlassIconButton(
             .shadow(
                 elevation = 8.dp,
                 shape = CircleShape,
-                ambientColor = JellyPinkDeep.copy(alpha = 0.25f),
-                spotColor = JellyPinkDeep.copy(alpha = 0.4f)
+                ambientColor = todoriColors.accentDeep.copy(alpha = 0.25f),
+                spotColor = todoriColors.accentDeep.copy(alpha = 0.4f)
             )
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75f))
-            .border(BorderStroke(1.5.dp, JellyPinkLight), CircleShape)
+            .border(BorderStroke(1.5.dp, todoriColors.accentLight), CircleShape)
             .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.Center
     ) {
-        Icon(icon, contentDescription = null, tint = JellyPinkDeep, modifier = Modifier.size(size * 0.43f))
+        Icon(icon, contentDescription = null, tint = todoriColors.accentDeep, modifier = Modifier.size(size * 0.43f))
     }
 }

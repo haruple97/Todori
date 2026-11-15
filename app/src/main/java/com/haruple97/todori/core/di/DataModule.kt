@@ -11,6 +11,8 @@ import com.haruple97.todori.core.data.repository.SessionRepository
 import com.haruple97.todori.core.data.repository.SessionRepositoryImpl
 import com.haruple97.todori.core.data.repository.SettingsRepository
 import com.haruple97.todori.core.data.repository.SettingsRepositoryImpl
+import com.haruple97.todori.core.premium.LocalPremiumRepository
+import com.haruple97.todori.core.premium.PremiumRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -29,6 +31,9 @@ abstract class DataBindsModule {
 
     @Binds
     abstract fun bindSessionRepository(impl: SessionRepositoryImpl): SessionRepository
+
+    @Binds
+    abstract fun bindPremiumRepository(impl: LocalPremiumRepository): PremiumRepository
 }
 
 @Module

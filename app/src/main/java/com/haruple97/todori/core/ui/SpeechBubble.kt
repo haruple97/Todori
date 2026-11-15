@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.haruple97.todori.core.designsystem.theme.JellyPinkLight
+import com.haruple97.todori.core.designsystem.theme.todoriColors
 
 private val TailHeight = 12.dp
 
@@ -67,7 +67,7 @@ fun SpeechBubble(text: String, modifier: Modifier = Modifier) {
         modifier = modifier
             .shadow(4.dp, shape)
             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.92f), shape)
-            .border(1.5.dp, JellyPinkLight, shape)
+            .border(1.5.dp, todoriColors.accentLight, shape)
             // 문구 길이가 바뀌어도 크기가 부드럽게 따라가게 한다. 그림자가 잘리지 않도록 가장 안쪽에 둔다.
             .animateContentSize()
     ) {

@@ -50,8 +50,7 @@ import androidx.window.core.layout.WindowSizeClass
 import com.haruple97.todori.R
 import com.haruple97.todori.core.designsystem.BackgroundTone
 import com.haruple97.todori.core.designsystem.TodoriBackground
-import com.haruple97.todori.core.designsystem.theme.JellyPinkDeep
-import com.haruple97.todori.core.designsystem.theme.JellyPinkLight
+import com.haruple97.todori.core.designsystem.theme.todoriColors
 import com.haruple97.todori.core.model.SessionRecord
 import com.haruple97.todori.core.ui.FloatingDecor
 import com.haruple97.todori.core.ui.GlassIconButton
@@ -168,7 +167,7 @@ private fun CuteSnackbar(data: SnackbarData) {
         modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.5.dp, JellyPinkLight),
+        border = BorderStroke(1.5.dp, todoriColors.accentLight),
         shadowElevation = 6.dp
     ) {
         Row(
@@ -183,7 +182,7 @@ private fun CuteSnackbar(data: SnackbarData) {
             )
             data.visuals.actionLabel?.let { label ->
                 TextButton(onClick = { data.performAction() }) {
-                    Text(label, style = MaterialTheme.typography.labelLarge, color = JellyPinkDeep)
+                    Text(label, style = MaterialTheme.typography.labelLarge, color = todoriColors.accentDeep)
                 }
             }
         }
