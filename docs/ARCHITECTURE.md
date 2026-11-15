@@ -22,6 +22,12 @@
 - Dispatcher는 `@IoDispatcher`/`@DefaultDispatcher`로 주입(하드코딩 금지).
 - UseCase(`core/domain`)는 로직이 두 곳 이상에서 재사용될 때만 도입.
 
+## 반응형 레이아웃
+- 화면 분기는 기기·방향이 아니라 Window Size Class(`currentWindowAdaptiveInfo().windowSizeClass`, `material3-adaptive`)로 한다.
+- 폭 ≥ 600dp 이고 높이 < 900dp(가로 모드 폰, 펼친 폴더블, 가로 태블릿)면 좌우 2단(토마토 | 정보·버튼), 그 외는 1단. 1단은 폭을 480dp로 제한한다.
+- 토마토 크기는 고정 dp가 아니라 가용 영역에서 계산하고, 시스템 바·컷아웃은 `safeDrawingPadding`으로 피한다.
+- 회전 시 Activity가 재생성되므로 일회성 UI 상태는 `rememberSaveable`, 타이머 상태는 `TimerEngine`에 둔다.
+
 ## 멀티모듈 전환 기준
 빌드 시간이 체감되거나 feature가 4개 이상이 되면 `:core:*`, `:feature:*`로 추출하고 `build-logic` convention plugin을 도입한다.
 

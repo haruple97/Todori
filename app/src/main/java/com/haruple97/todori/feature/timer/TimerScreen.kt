@@ -12,24 +12,31 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +49,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,6 +57,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.core.layout.WindowSizeClass
 import com.haruple97.todori.R
 import com.haruple97.todori.core.common.formatRemainingTime
 import com.haruple97.todori.core.model.TimerStatus
@@ -59,6 +68,16 @@ import com.haruple97.todori.core.ui.TomatoMood
 import com.haruple97.todori.feature.timer.component.TomatoDial
 import kotlinx.coroutines.delay
 
+private class TimerActions(
+    val onMinutesChange: (Int) -> Unit,
+    val onStart: () -> Unit,
+    val onPause: () -> Unit,
+    val onResume: () -> Unit,
+    val onGiveUp: () -> Unit,
+    val onOneMore: () -> Unit,
+    val onStop: () -> Unit
+)
+
 @Composable
 fun TimerScreen(
     modifier: Modifier = Modifier,
@@ -68,7 +87,7 @@ fun TimerScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
-    var showGiveUp by remember { mutableStateOf(false) }
+    var showGiveUp by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(ui.status) {
         if (ui.status == TimerStatus.Running) {
@@ -92,57 +111,33 @@ fun TimerScreen(
         if (needsPermission) permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) else viewModel.start()
     }
 
+    // 가로가 충분히 넓고 세로가 넉넉하지 않으면(가로 모드 폰, 펼친 폴더블, 가로 태블릿) 좌우 2단으로 배치한다.
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val twoPane = windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) &&
+        !windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_EXPANDED_LOWER_BOUND)
+
+    val actions = TimerActions(
+        onMinutesChange = viewModel::setFocusMinutes,
+        onStart = ::requestStart,
+        onPause = viewModel::pause,
+        onResume = viewModel::resume,
+        onGiveUp = { showGiveUp = true },
+        onOneMore = viewModel::start,
+        onStop = viewModel::stop
+    )
+
     Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Column(
-            modifier = Modifier
+        BoxWithConstraints(
+            Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
-                .navigationBarsPadding()
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .safeDrawingPadding()
+                .padding(24.dp)
         ) {
-            Spacer(Modifier.height(24.dp))
-            Text(
-                stringResource(R.string.timer_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = stringResource(statusTextRes(ui)),
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(Modifier.weight(1f))
-            TomatoStage(ui, onMinutesChange = viewModel::setFocusMinutes)
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = timeText(ui),
-                style = MaterialTheme.typography.displayLarge,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            if (ui.status == TimerStatus.Idle) {
-                Spacer(Modifier.height(12.dp))
-                Text(
-                    text = stringResource(R.string.dial_hint),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
-                    textAlign = TextAlign.Center
-                )
+            if (twoPane) {
+                TwoPaneContent(ui, actions, maxWidth, maxHeight)
+            } else {
+                SinglePaneContent(ui, actions, maxHeight)
             }
-            Spacer(Modifier.weight(1f))
-
-            Controls(
-                status = ui.status,
-                onStart = ::requestStart,
-                onPause = viewModel::pause,
-                onResume = viewModel::resume,
-                onGiveUp = { showGiveUp = true },
-                onOneMore = viewModel::start,
-                onStop = viewModel::stop
-            )
-            Spacer(Modifier.height(24.dp))
         }
         ConfettiBurst(trigger = ui.status == TimerStatus.Finished)
     }
@@ -166,20 +161,100 @@ fun TimerScreen(
 }
 
 @Composable
-private fun TomatoStage(ui: TimerUiState, onMinutesChange: (Int) -> Unit) {
-    Box(Modifier.size(STAGE_SIZE), contentAlignment = Alignment.Center) {
+private fun BoxScope.SinglePaneContent(ui: TimerUiState, actions: TimerActions, height: Dp) {
+    Column(
+        modifier = Modifier
+            .align(Alignment.Center)
+            .fillMaxHeight()
+            .widthIn(max = MAX_CONTENT_WIDTH),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(Modifier.height(8.dp))
+        Header(ui)
+        Spacer(Modifier.weight(1f))
+        TomatoStage(ui, stageSize = minOf(STAGE_MAX, height * 0.38f), onMinutesChange = actions.onMinutesChange)
+        Spacer(Modifier.height(8.dp))
+        TimeAndHint(ui)
+        Spacer(Modifier.weight(1f))
+        Controls(ui.status, actions, horizontal = false)
+    }
+}
+
+@Composable
+private fun TwoPaneContent(ui: TimerUiState, actions: TimerActions, width: Dp, height: Dp) {
+    Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+        Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
+            TomatoStage(
+                ui = ui,
+                stageSize = minOf(STAGE_MAX_WIDE, height, width / 2 - 12.dp),
+                onMinutesChange = actions.onMinutesChange
+            )
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Header(ui)
+            Spacer(Modifier.height(16.dp))
+            TimeAndHint(ui)
+            Spacer(Modifier.height(24.dp))
+            Controls(ui.status, actions, horizontal = true)
+        }
+    }
+}
+
+@Composable
+private fun Header(ui: TimerUiState) {
+    Text(
+        stringResource(R.string.timer_title),
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.primary
+    )
+    Spacer(Modifier.height(4.dp))
+    Text(
+        text = stringResource(statusTextRes(ui)),
+        style = MaterialTheme.typography.bodyLarge,
+        textAlign = TextAlign.Center
+    )
+}
+
+@Composable
+private fun TimeAndHint(ui: TimerUiState) {
+    Text(
+        text = timeText(ui),
+        style = MaterialTheme.typography.displayLarge,
+        color = MaterialTheme.colorScheme.onBackground
+    )
+    if (ui.status == TimerStatus.Idle) {
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = stringResource(R.string.dial_hint),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun TomatoStage(ui: TimerUiState, stageSize: Dp, onMinutesChange: (Int) -> Unit) {
+    Box(Modifier.size(stageSize), contentAlignment = Alignment.Center) {
         if (ui.status == TimerStatus.Idle) {
             TomatoDial(
                 minutes = ui.focusMinutes,
                 onMinutesChange = onMinutesChange,
-                modifier = Modifier.size(220.dp)
+                modifier = Modifier.size(stageSize * DIAL_RATIO)
             )
         } else {
-            ProgressRing(ui.progress, Modifier.size(STAGE_SIZE))
+            ProgressRing(ui.progress, Modifier.size(stageSize))
             TomatoCharacter(
                 mood = moodOf(ui.status),
                 ripeness = if (ui.status == TimerStatus.Finished) 1f else ui.progress,
-                modifier = Modifier.size(210.dp)
+                modifier = Modifier.size(stageSize * TOMATO_RATIO)
             )
         }
     }
@@ -201,31 +276,47 @@ private fun ProgressRing(progress: Float, modifier: Modifier = Modifier) {
     }
 }
 
+/** 버튼 두 개짜리 상태는 [horizontal]이면 나란히, 아니면 세로로 쌓는다. */
 @Composable
-private fun Controls(
-    status: TimerStatus,
-    onStart: () -> Unit,
-    onPause: () -> Unit,
-    onResume: () -> Unit,
-    onGiveUp: () -> Unit,
-    onOneMore: () -> Unit,
-    onStop: () -> Unit
-) {
-    val wide = Modifier.fillMaxWidth()
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        when (status) {
-            TimerStatus.Idle -> SoftButton(stringResource(R.string.btn_start), onStart, wide)
-            TimerStatus.Running -> {
-                SoftButton(stringResource(R.string.btn_pause), onPause, wide)
-                SoftButton(stringResource(R.string.btn_give_up), onGiveUp, wide, primary = false)
-            }
-            TimerStatus.Paused -> {
-                SoftButton(stringResource(R.string.btn_resume), onResume, wide)
-                SoftButton(stringResource(R.string.btn_give_up), onGiveUp, wide, primary = false)
-            }
-            TimerStatus.Finished -> {
-                SoftButton(stringResource(R.string.btn_one_more), onOneMore, wide)
-                SoftButton(stringResource(R.string.btn_stop), onStop, wide, primary = false)
+private fun Controls(status: TimerStatus, actions: TimerActions, horizontal: Boolean) {
+    val primaryText: String
+    val primaryAction: () -> Unit
+    var secondaryText: String? = null
+    var secondaryAction: () -> Unit = {}
+    when (status) {
+        TimerStatus.Idle -> {
+            primaryText = stringResource(R.string.btn_start)
+            primaryAction = actions.onStart
+        }
+        TimerStatus.Running -> {
+            primaryText = stringResource(R.string.btn_pause)
+            primaryAction = actions.onPause
+            secondaryText = stringResource(R.string.btn_give_up)
+            secondaryAction = actions.onGiveUp
+        }
+        TimerStatus.Paused -> {
+            primaryText = stringResource(R.string.btn_resume)
+            primaryAction = actions.onResume
+            secondaryText = stringResource(R.string.btn_give_up)
+            secondaryAction = actions.onGiveUp
+        }
+        TimerStatus.Finished -> {
+            primaryText = stringResource(R.string.btn_one_more)
+            primaryAction = actions.onOneMore
+            secondaryText = stringResource(R.string.btn_stop)
+            secondaryAction = actions.onStop
+        }
+    }
+    if (horizontal && secondaryText != null) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            SoftButton(secondaryText, secondaryAction, Modifier.weight(1f), primary = false)
+            SoftButton(primaryText, primaryAction, Modifier.weight(1f))
+        }
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            SoftButton(primaryText, primaryAction, Modifier.fillMaxWidth())
+            if (secondaryText != null) {
+                SoftButton(secondaryText, secondaryAction, Modifier.fillMaxWidth(), primary = false)
             }
         }
     }
@@ -252,5 +343,9 @@ private fun timeText(ui: TimerUiState): String = when (ui.status) {
     else -> formatRemainingTime(ui.remainingMillis)
 }
 
-private val STAGE_SIZE = 290.dp
+private val STAGE_MAX = 290.dp
+private val STAGE_MAX_WIDE = 360.dp
+private val MAX_CONTENT_WIDTH = 480.dp
+private const val DIAL_RATIO = 0.76f
+private const val TOMATO_RATIO = 0.72f
 private const val TICK_MILLIS = 250L
