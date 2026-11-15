@@ -54,7 +54,7 @@ import com.haruple97.todori.core.ui.JellyButton
 import com.haruple97.todori.core.ui.TomatoCharacter
 import com.haruple97.todori.core.ui.TomatoMood
 import com.haruple97.todori.core.ui.icon.TodoriIcons
-import com.haruple97.todori.feature.customize.nameRes
+import com.haruple97.todori.core.ui.nameRes
 
 /**
  * 고른 캐릭터와 테마를 미리 보여주는 카드. 카드 안은 미리 보는 테마의 색으로 그려져서,

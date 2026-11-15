@@ -1,9 +1,7 @@
 package com.haruple97.todori.feature.customize
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.haruple97.todori.R
 import com.haruple97.todori.core.data.repository.SettingsRepository
 import com.haruple97.todori.core.model.Appearance
 import com.haruple97.todori.core.model.SkinId
@@ -57,21 +55,4 @@ class CustomizeViewModel @Inject constructor(
     fun setDevPremium(enabled: Boolean) {
         viewModelScope.launch { premiumRepository.setDebugPremium(enabled) }
     }
-}
-
-@StringRes
-fun SkinId.nameRes(): Int = when (this) {
-    SkinId.Tomato -> R.string.skin_tomato
-    SkinId.Strawberry -> R.string.skin_strawberry
-    SkinId.Peach -> R.string.skin_peach
-    SkinId.Cherry -> R.string.skin_cherry
-    SkinId.Lemon -> R.string.skin_lemon
-}
-
-@StringRes
-fun ThemeId.nameRes(): Int = when (this) {
-    ThemeId.Pink -> R.string.theme_pink
-    ThemeId.Lavender -> R.string.theme_lavender
-    ThemeId.Mint -> R.string.theme_mint
-    ThemeId.Midnight -> R.string.theme_midnight
 }

@@ -56,7 +56,7 @@
     <string name="record_empty_title">아직 채운 토마토가 없어요</string>
     <string name="record_empty_hint">집중을 한 번 끝낼 때마다\n토마토가 하나씩 채워져요</string>
     <string name="done_label">완료!</string>
-    <string name="dial_hint">토마토를 위아래로 쓸어서 시간을 키워요</string>
+    <string name="dial_hint">%1$s를 위아래로 쓸어서 시간을 키워요</string>
     <string name="dial_increase">시간 늘리기</string>
     <string name="dial_decrease">시간 줄이기</string>
 
@@ -68,14 +68,14 @@
     <string name="btn_stop">그만하기</string>
 
     <string name="give_up_title">정말 포기할까요?</string>
-    <string name="give_up_message">지금까지 키운 토마토가 사라져요.</string>
+    <string name="give_up_message">지금까지 집중한 시간이 사라져요.</string>
     <string name="give_up_confirm">포기</string>
     <string name="give_up_cancel">계속할래요</string>
 
     <string name="notif_channel_progress">진행 중인 타이머</string>
     <string name="notif_channel_done">타이머 완료</string>
     <string name="notif_focus_running">집중하는 중이에요</string>
-    <string name="notif_done_title">토돌이가 잘 익었어요!</string>
+    <string name="notif_done_title">잘 익었어요!</string>
     <string name="notif_done_text">집중 완료! 수고했어요.</string>
 
     <string name="customize_open">꾸미기</string>

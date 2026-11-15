@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Todori speech bubble lines, grouped by situation (see BubbleKey). {count} is replaced with today's finished count. -->
+<!-- Speech bubble lines, grouped by situation (see BubbleKey). {count} is today's finished count, {name} is the chosen character's name. -->
 <resources>
     <string-array name="bubble_idle_first">
         <item>Nice to meet you!</item>
-        <item>I\'m Todori! Let\'s focus together</item>
-        <item>Swipe the tomato to pick your time</item>
+        <item>I\'m {name}! Let\'s focus together</item>
+        <item>Swipe {name} to pick your time</item>
         <item>Shall we grow your first tomato?</item>
     </string-array>
 
@@ -23,7 +23,7 @@
         <item>Let\'s begin the day softly</item>
     </string-array>
     <string-array name="bubble_idle_afternoon">
-        <item>Sleepy afternoon? Tomato to the rescue</item>
+        <item>Sleepy afternoon? {name} to the rescue</item>
         <item>A light session after lunch?</item>
         <item>Let\'s power through the afternoon</item>
         <item>I\'m ready! Shall we start?</item>
@@ -38,7 +38,7 @@
         <item>It\'s late, just a short one?</item>
         <item>Don\'t overdo it tonight</item>
         <item>Let\'s wrap up lightly today</item>
-        <item>A tomato instead of a midnight snack?</item>
+        <item>Focus with {name} instead of a midnight snack?</item>
     </string-array>
 
     <string-array name="bubble_idle_short">
@@ -63,14 +63,14 @@
     <string-array name="bubble_focus_early">
         <item>You\'re doing great</item>
         <item>In the zone… I won\'t disturb you</item>
-        <item>Todori is slowly ripening</item>
+        <item>{name} is slowly ripening</item>
         <item>This feels just right</item>
     </string-array>
     <string-array name="bubble_focus_middle">
         <item>Already halfway there!</item>
         <item>Half done, amazing</item>
         <item>Keep this rhythm</item>
-        <item>Todori is turning red</item>
+        <item>{name} is getting riper</item>
     </string-array>
     <string-array name="bubble_focus_late">
         <item>Almost there, almost ripe</item>

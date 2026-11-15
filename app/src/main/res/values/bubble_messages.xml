@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    토돌이 말풍선 문구. 상황(BubbleKey)마다 묶음이 하나씩 있고, 같은 상황에서는 직전과 다른 문구가 나온다.
-    {count}는 오늘 끝낸 횟수로 바뀐다. 새 문구는 해당 묶음에 항목만 추가하면 된다.
+    캐릭터 말풍선 문구. 상황(BubbleKey)마다 묶음이 하나씩 있고, 같은 상황에서는 직전과 다른 문구가 나온다.
+    {count}는 오늘 끝낸 횟수, {name}은 지금 고른 캐릭터 이름으로 바뀐다(한국어는 받침 없는 이름이라 조사 가/를/와 사용). 새 문구는 해당 묶음에 항목만 추가하면 된다.
 -->
 <resources>
     <!-- 대기: 처음 사용 -->
     <string-array name="bubble_idle_first">
         <item>처음 만났네요! 반가워요</item>
-        <item>나는 토돌이! 같이 집중해봐요</item>
-        <item>토마토를 위아래로 쓸어서 시간을 골라요</item>
+        <item>나는 {name}! 같이 집중해봐요</item>
+        <item>{name}를 위아래로 쓸어서 시간을 골라요</item>
         <item>첫 토마토를 같이 키워볼까요?</item>
     </string-array>
 
@@ -29,7 +29,7 @@
         <item>오늘 하루도 말랑하게 시작해요</item>
     </string-array>
     <string-array name="bubble_idle_afternoon">
-        <item>나른한 오후, 토마토로 깨워봐요</item>
+        <item>나른한 오후, {name}와 함께 깨워봐요</item>
         <item>점심 뒤엔 가볍게 한 번 어때요?</item>
         <item>오후에도 같이 힘내봐요</item>
         <item>나 준비됐어요! 시작해볼까요?</item>
@@ -44,7 +44,7 @@
         <item>밤이 깊었어요, 짧게 한 번만?</item>
         <item>늦은 시간이네요, 무리하지 말아요</item>
         <item>오늘은 가볍게 마무리해요</item>
-        <item>야식 대신 토마토 어때요?</item>
+        <item>야식 대신 {name}랑 집중 어때요?</item>
     </string-array>
 
     <!-- 대기: 다이얼로 고른 시간에 따라 -->
@@ -71,14 +71,14 @@
     <string-array name="bubble_focus_early">
         <item>잘 하고 있어요</item>
         <item>몰입 중… 방해하지 않을게요</item>
-        <item>토돌이가 천천히 익고 있어요</item>
+        <item>{name}가 천천히 익고 있어요</item>
         <item>지금 아주 좋아요</item>
     </string-array>
     <string-array name="bubble_focus_middle">
         <item>벌써 절반쯤 왔어요!</item>
         <item>반이나 했어요, 대단해요</item>
         <item>이 흐름 그대로 가요</item>
-        <item>토돌이가 붉어지고 있어요</item>
+        <item>{name}가 점점 익어가고 있어요</item>
     </string-array>
     <string-array name="bubble_focus_late">
         <item>조금만 더, 거의 다 익었어요</item>

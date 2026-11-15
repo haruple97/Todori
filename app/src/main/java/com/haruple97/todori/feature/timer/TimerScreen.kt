@@ -79,7 +79,9 @@ import com.haruple97.todori.core.designsystem.BackgroundTone
 import com.haruple97.todori.core.designsystem.TodoriBackground
 import com.haruple97.todori.core.review.findActivity
 import com.haruple97.todori.core.review.requestInAppReview
+import com.haruple97.todori.core.designsystem.theme.LocalSkin
 import com.haruple97.todori.core.designsystem.theme.todoriColors
+import com.haruple97.todori.core.ui.nameRes
 import com.haruple97.todori.core.model.TimerStatus
 import com.haruple97.todori.core.ui.ConfettiBurst
 import com.haruple97.todori.core.ui.FloatingDecor
@@ -334,7 +336,7 @@ private fun TimeAndHint(ui: TimerUiState, onCustomTime: () -> Unit) {
     if (ui.status == TimerStatus.Idle) {
         Spacer(Modifier.height(8.dp))
         Text(
-            text = stringResource(R.string.dial_hint),
+            text = stringResource(R.string.dial_hint, stringResource(LocalSkin.current.nameRes())),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
             textAlign = TextAlign.Center
@@ -513,7 +515,10 @@ private fun bubbleText(ui: TimerUiState): String {
     )
     val options = stringArrayResource(key.arrayRes())
     val index = rememberSaveable(key) { AppBubbleHistory.next(key, options.size) }
-    return options[index % options.size].replace("{count}", ui.todayCount.toString())
+    val name = stringResource(LocalSkin.current.nameRes())
+    return options[index % options.size]
+        .replace("{count}", ui.todayCount.toString())
+        .replace("{name}", name)
 }
 
 @ArrayRes

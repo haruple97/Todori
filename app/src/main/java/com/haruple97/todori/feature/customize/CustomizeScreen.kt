@@ -44,6 +44,7 @@ import com.haruple97.todori.core.ui.GlassIconButton
 import com.haruple97.todori.core.ui.JellyButton
 import com.haruple97.todori.core.ui.PremiumGateSheet
 import com.haruple97.todori.core.ui.icon.TodoriIcons
+import com.haruple97.todori.core.ui.nameRes
 import com.haruple97.todori.feature.customize.component.CustomizeTabs
 import com.haruple97.todori.feature.customize.component.ItemCard
 import com.haruple97.todori.feature.customize.component.PreviewCard
