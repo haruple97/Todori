@@ -5,8 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.haruple97.todori.core.designsystem.theme.TodoriTheme
 import com.haruple97.todori.navigation.TodoriNavHost
@@ -19,9 +17,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TodoriTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    TodoriNavHost(modifier = Modifier.padding(innerPadding))
-                }
+                TodoriNavHost(modifier = Modifier.fillMaxSize())
             }
         }
     }

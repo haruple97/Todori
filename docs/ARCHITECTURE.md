@@ -9,7 +9,8 @@
 | `core/model` | 도메인 모델. Android 의존 금지 |
 | `core/data` | Repository(interface+Impl), Room(`database`), DataStore |
 | `core/designsystem` | 테마, 공통 컴포넌트 |
-| `core/ui` | 토마토 캐릭터 등 공용 Compose UI (추가 예정) |
+| `core/ui` | 토마토 캐릭터(`TomatoCharacter`), 파티클, 공용 버튼/칩 |
+| `core/timer` | `TimerEngine`(종료 시각 기준 상태머신), 알람·알림(`TimerPlatform`), 영속화 인터페이스. 서비스 없이 AlarmManager로 완료 처리 |
 | `core/di` | Hilt 모듈 |
 | `feature/*` | 화면 단위: `Screen` + `ViewModel` + `UiState` |
 | `navigation` | NavHost, 타입세이프 라우트 |

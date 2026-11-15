@@ -1,9 +1,16 @@
 package com.haruple97.todori.feature.timer
 
 import com.haruple97.todori.core.model.TimerPhase
+import com.haruple97.todori.core.model.TimerStatus
 
 data class TimerUiState(
     val phase: TimerPhase = TimerPhase.Focus,
-    val remainingMillis: Long = 25 * 60 * 1000L,
-    val isRunning: Boolean = false
-)
+    val status: TimerStatus = TimerStatus.Idle,
+    val focusMinutes: Int = 25,
+    val breakMinutes: Int = 5,
+    val totalMillis: Long = 0L,
+    val remainingMillis: Long = 0L
+) {
+    val progress: Float
+        get() = if (totalMillis <= 0L) 0f else (1f - remainingMillis.toFloat() / totalMillis).coerceIn(0f, 1f)
+}
