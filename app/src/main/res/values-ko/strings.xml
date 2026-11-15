@@ -1,0 +1,4 @@
+<resources>
+    <!-- 한국어 기기에서만 한글 이름. 그 밖의 언어는 기본값 Todori -->
+    <string name="app_name">토돌이</string>
+</resources>
