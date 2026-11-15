@@ -298,7 +298,10 @@ private fun ProgressRing(progress: Float, modifier: Modifier = Modifier) {
         if (animated > 0f) {
             rotate(-90f) {
                 drawArc(
-                    brush = Brush.sweepGradient(listOf(PeachGlow, JellyPinkLight, JellyPinkDeep)),
+                    // 시작·끝 색을 같게 해서 한 바퀴를 채웠을 때 이음새가 보이지 않게 한다.
+                    brush = Brush.sweepGradient(
+                        listOf(JellyPinkDeep, JellyPinkLight, PeachGlow, JellyPinkLight, JellyPinkDeep)
+                    ),
                     startAngle = 0f,
                     sweepAngle = 360f * animated,
                     useCenter = false,
