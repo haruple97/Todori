@@ -1,9 +1,9 @@
 package com.haruple97.todori.widget
 
 import com.haruple97.todori.core.model.SessionRecord
-import com.haruple97.todori.feature.record.currentStreak
-import com.haruple97.todori.feature.record.groupByDay
-import com.haruple97.todori.feature.record.weekOf
+import com.haruple97.todori.core.common.currentStreak
+import com.haruple97.todori.core.common.groupByDay
+import com.haruple97.todori.core.common.weekOf
 import java.time.LocalDate
 import java.time.ZoneId
 

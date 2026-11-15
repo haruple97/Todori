@@ -40,7 +40,7 @@ import com.haruple97.todori.R
 import com.haruple97.todori.core.designsystem.theme.todoriColors
 import com.haruple97.todori.core.model.SessionRecord
 import com.haruple97.todori.core.ui.MiniTomato
-import com.haruple97.todori.feature.record.monthGrid
+import com.haruple97.todori.core.common.monthGrid
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth

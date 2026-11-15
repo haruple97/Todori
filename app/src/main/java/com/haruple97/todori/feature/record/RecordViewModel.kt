@@ -2,6 +2,8 @@ package com.haruple97.todori.feature.record
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.haruple97.todori.core.common.currentStreak
+import com.haruple97.todori.core.common.groupByDay
 import com.haruple97.todori.core.data.repository.SessionRepository
 import com.haruple97.todori.core.model.SessionRecord
 import dagger.hilt.android.lifecycle.HiltViewModel

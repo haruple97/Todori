@@ -1,4 +1,4 @@
-package com.haruple97.todori.feature.record
+package com.haruple97.todori.core.common
 
 import com.haruple97.todori.core.model.SessionRecord
 import java.time.LocalDate
@@ -9,7 +9,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
-class RecordLogicTest {
+class RecordDaysTest {
     private val seoul = ZoneId.of("Asia/Seoul")
 
     private fun session(y: Int, m: Int, d: Int, h: Int, min: Int, minutes: Int = 25) = SessionRecord(

@@ -1,4 +1,4 @@
-package com.haruple97.todori.feature.record
+package com.haruple97.todori.core.common
 
 import com.haruple97.todori.core.model.SessionRecord
 import java.time.Instant
