@@ -43,6 +43,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -64,9 +65,11 @@ import com.haruple97.todori.core.designsystem.TodoriBackground
 import com.haruple97.todori.core.model.TimerStatus
 import com.haruple97.todori.core.ui.ConfettiBurst
 import com.haruple97.todori.core.ui.FloatingDecor
-import com.haruple97.todori.core.ui.SoftButton
+import com.haruple97.todori.core.ui.GlassIconButton
+import com.haruple97.todori.core.ui.JellyButton
 import com.haruple97.todori.core.ui.TomatoCharacter
 import com.haruple97.todori.core.ui.TomatoMood
+import com.haruple97.todori.core.ui.icon.TodoriIcons
 import com.haruple97.todori.feature.timer.component.TomatoDial
 import kotlinx.coroutines.delay
 
@@ -184,7 +187,7 @@ private fun BoxScope.SinglePaneContent(ui: TimerUiState, actions: TimerActions, 
         Spacer(Modifier.height(8.dp))
         TimeAndHint(ui)
         Spacer(Modifier.weight(1f))
-        Controls(ui.status, actions, horizontal = false)
+        Controls(ui.status, actions)
     }
 }
 
@@ -210,7 +213,7 @@ private fun TwoPaneContent(ui: TimerUiState, actions: TimerActions, width: Dp, h
             Spacer(Modifier.height(16.dp))
             TimeAndHint(ui)
             Spacer(Modifier.height(24.dp))
-            Controls(ui.status, actions, horizontal = true)
+            Controls(ui.status, actions)
         }
     }
 }
@@ -284,49 +287,55 @@ private fun ProgressRing(progress: Float, modifier: Modifier = Modifier) {
     }
 }
 
-/** 버튼 두 개짜리 상태는 [horizontal]이면 나란히, 아니면 세로로 쌓는다. */
+/** 메인은 젤리 알약, 포기/그만하기는 옆의 작은 원형 글라스 버튼. */
 @Composable
-private fun Controls(status: TimerStatus, actions: TimerActions, horizontal: Boolean) {
-    val primaryText: String
-    val primaryAction: () -> Unit
-    var secondaryText: String? = null
-    var secondaryAction: () -> Unit = {}
+private fun Controls(status: TimerStatus, actions: TimerActions) {
     when (status) {
-        TimerStatus.Idle -> {
-            primaryText = stringResource(R.string.btn_start)
-            primaryAction = actions.onStart
-        }
-        TimerStatus.Running -> {
-            primaryText = stringResource(R.string.btn_pause)
-            primaryAction = actions.onPause
-            secondaryText = stringResource(R.string.btn_give_up)
-            secondaryAction = actions.onGiveUp
-        }
-        TimerStatus.Paused -> {
-            primaryText = stringResource(R.string.btn_resume)
-            primaryAction = actions.onResume
-            secondaryText = stringResource(R.string.btn_give_up)
-            secondaryAction = actions.onGiveUp
-        }
-        TimerStatus.Finished -> {
-            primaryText = stringResource(R.string.btn_one_more)
-            primaryAction = actions.onOneMore
-            secondaryText = stringResource(R.string.btn_stop)
-            secondaryAction = actions.onStop
-        }
+        TimerStatus.Idle -> JellyButton(
+            text = stringResource(R.string.btn_start),
+            icon = TodoriIcons.Play,
+            onClick = actions.onStart,
+            modifier = Modifier.fillMaxWidth()
+        )
+        TimerStatus.Running -> ControlRow(
+            secondaryDescription = stringResource(R.string.btn_give_up),
+            onSecondary = actions.onGiveUp,
+            primaryText = stringResource(R.string.btn_pause),
+            primaryIcon = TodoriIcons.Pause,
+            onPrimary = actions.onPause
+        )
+        TimerStatus.Paused -> ControlRow(
+            secondaryDescription = stringResource(R.string.btn_give_up),
+            onSecondary = actions.onGiveUp,
+            primaryText = stringResource(R.string.btn_resume),
+            primaryIcon = TodoriIcons.Play,
+            onPrimary = actions.onResume
+        )
+        TimerStatus.Finished -> ControlRow(
+            secondaryDescription = stringResource(R.string.btn_stop),
+            onSecondary = actions.onStop,
+            primaryText = stringResource(R.string.btn_one_more),
+            primaryIcon = TodoriIcons.Heart,
+            onPrimary = actions.onOneMore
+        )
     }
-    if (horizontal && secondaryText != null) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            SoftButton(secondaryText, secondaryAction, Modifier.weight(1f), primary = false)
-            SoftButton(primaryText, primaryAction, Modifier.weight(1f))
-        }
-    } else {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SoftButton(primaryText, primaryAction, Modifier.fillMaxWidth())
-            if (secondaryText != null) {
-                SoftButton(secondaryText, secondaryAction, Modifier.fillMaxWidth(), primary = false)
-            }
-        }
+}
+
+@Composable
+private fun ControlRow(
+    secondaryDescription: String,
+    onSecondary: () -> Unit,
+    primaryText: String,
+    primaryIcon: ImageVector,
+    onPrimary: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        GlassIconButton(TodoriIcons.Close, secondaryDescription, onSecondary)
+        JellyButton(primaryText, primaryIcon, onPrimary, Modifier.weight(1f))
     }
 }
 
