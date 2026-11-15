@@ -33,6 +33,23 @@
     <string name="count_format">%d</string>
     <string name="days_format">%d d</string>
 
+    <string name="widget_name">This week\'s tomatoes</string>
+    <string name="widget_description">See the tomatoes you filled this week at a glance</string>
+    <string name="widget_title">This week</string>
+    <string name="widget_summary">%1$d · %2$d-day streak</string>
+    <string name="widget_preview_summary">4 · 4-day streak</string>
+    <string name="widget_small_title">%d this week</string>
+    <string name="widget_small_streak">%d-day streak</string>
+    <string name="widget_small_empty">Grow your first\ntomato</string>
+    <string name="widget_day_description">%1$s, %2$d tomatoes</string>
+    <string name="weekday_sun">Sun</string>
+    <string name="weekday_mon">Mon</string>
+    <string name="weekday_tue">Tue</string>
+    <string name="weekday_wed">Wed</string>
+    <string name="weekday_thu">Thu</string>
+    <string name="weekday_fri">Fri</string>
+    <string name="weekday_sat">Sat</string>
+
     <string name="record_open">View tomato record</string>
     <string name="record_back">Back</string>
     <string name="record_title">Tomato record</string>

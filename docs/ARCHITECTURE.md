@@ -27,6 +27,13 @@
 - 날짜 묶기·연속 일수·달력 격자는 `RecordLogic.kt`의 순수 함수(단위 테스트 있음)로 두고, ViewModel은 상태 조합만 한다.
 - 타이머 화면 → 기록 화면은 `navigation/TodoriNavHost.kt`의 `RecordRoute`로 이동한다.
 
+## 홈 화면 위젯
+- `widget/`: Jetpack Glance(`glance-appwidget`)로 만든 "이번 주 토마토" 위젯. 일~토 7일에 토마토를 채워 보여주고, 크기(작게/넓게)에 따라 레이아웃이 바뀐다(`SizeMode.Responsive`).
+- 주간 요약 계산은 순수 함수 `buildWeekSummary`(단위 테스트 있음). 데이터는 Hilt `EntryPoint`로 `SessionRepository`에서 읽는다.
+- 위젯을 누르면 딥링크(`todori://record`)로 기록 화면이 바로 열린다.
+- 갱신: 새 완료 기록이 생기면 `TodoriApp`이 `updateAll`을 호출하고(알람으로 프로세스가 새로 떠도 동작), 날짜 변경은 30분 주기 갱신(`updatePeriodMillis`)에 맡긴다.
+- 주의: 앱을 강제 종료하면 위젯의 클릭 동작이 다음 갱신 전까지 취소될 수 있다(안드로이드 기본 동작).
+
 ## 화면 꺼짐 방지
 - 타이머가 `Running`일 때만 `View.keepScreenOn`을 켜고, 일시정지·완료·화면 이탈(`onDispose`) 시 즉시 끈다. 백그라운드에서는 알람이 완료를 처리하므로 화면을 켜 둘 필요가 없다.
 
