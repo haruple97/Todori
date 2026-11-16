@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.haruple97.todori.R
 import com.haruple97.todori.core.designsystem.theme.todoriColors
+import com.haruple97.todori.core.common.heatLevel
 import com.haruple97.todori.core.model.SessionRecord
 import com.haruple97.todori.core.ui.GlassIconButton
 import com.haruple97.todori.core.ui.SoftCard
@@ -59,6 +60,7 @@ fun RecordSummary(totalCount: Int, totalMinutes: Int, streak: Int, modifier: Mod
 fun DayDetail(
     date: LocalDate,
     sessions: List<SessionRecord>,
+    showRipeness: Boolean,
     zone: ZoneId,
     onDelete: (SessionRecord) -> Unit,
     onDeleteAll: () -> Unit,
@@ -90,6 +92,7 @@ fun DayDetail(
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
+                if (showRipeness) RipenessComment(heatLevel(sessions.sumOf { it.durationMinutes }))
                 sessions.forEach { session ->
                     val time = Instant.ofEpochMilli(session.completedAtMillis).atZone(zone).toLocalTime()
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -123,6 +126,38 @@ fun DayDetail(
                     }
                 }
             }
+        }
+    }
+}
+
+/** 선택한 날의 농도 단계에 맞춰 토돌이가 한마디 해준다. */
+@Composable
+private fun RipenessComment(level: Int) {
+    val text = stringResource(
+        when (level) {
+            1 -> R.string.record_ripeness_1
+            2 -> R.string.record_ripeness_2
+            3 -> R.string.record_ripeness_3
+            else -> R.string.record_ripeness_4
+        }
+    )
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        TomatoCharacter(
+            mood = if (level >= 3) TomatoMood.Happy else TomatoMood.Idle,
+            ripeness = level / 4f,
+            modifier = Modifier.size(52.dp)
+        )
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = todoriColors.accentLight.copy(alpha = 0.18f),
+            border = BorderStroke(1.dp, todoriColors.accentLight)
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+            )
         }
     }
 }

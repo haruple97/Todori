@@ -38,8 +38,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.haruple97.todori.R
 import com.haruple97.todori.core.designsystem.theme.todoriColors
+import com.haruple97.todori.core.common.heatLevel
+import com.haruple97.todori.core.model.HeatStyle
 import com.haruple97.todori.core.model.SessionRecord
 import com.haruple97.todori.core.ui.MiniTomato
+import com.haruple97.todori.core.ui.formatDuration
 import com.haruple97.todori.core.common.monthGrid
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -61,7 +64,8 @@ fun MonthCalendar(
     days: Map<LocalDate, List<SessionRecord>>,
     cellSize: Dp,
     onSelect: (LocalDate) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    heatStyle: HeatStyle? = null
 ) {
     val weeks = remember(month) { monthGrid(month) }
     val locale = LocalConfiguration.current.locales[0]
@@ -90,6 +94,7 @@ fun MonthCalendar(
                         selected = selected,
                         sessions = date?.let { days[it] }.orEmpty(),
                         cellSize = cellSize,
+                        heatStyle = heatStyle,
                         dayFormatter = dayFormatter,
                         onSelect = onSelect
                     )
@@ -106,6 +111,7 @@ private fun DayCell(
     selected: LocalDate,
     sessions: List<SessionRecord>,
     cellSize: Dp,
+    heatStyle: HeatStyle?,
     dayFormatter: DateTimeFormatter,
     onSelect: (LocalDate) -> Unit
 ) {
@@ -116,7 +122,13 @@ private fun DayCell(
     }
     val isFuture = date.isAfter(today)
     val isSelected = date == selected
-    val description = stringResource(R.string.record_cell_description, date.format(dayFormatter), sessions.size)
+    val minutes = sessions.sumOf { it.durationMinutes }
+    val level = if (heatStyle == null) 0 else heatLevel(minutes)
+    val description = if (heatStyle == null) {
+        stringResource(R.string.record_cell_description, date.format(dayFormatter), sessions.size)
+    } else {
+        stringResource(R.string.record_cell_heat_description, date.format(dayFormatter), formatDuration(minutes))
+    }
 
     Box(
         modifier = Modifier
@@ -135,6 +147,9 @@ private fun DayCell(
             .then(if (isFuture) Modifier else Modifier.clickable { onSelect(date) })
             .semantics(mergeDescendants = true) { contentDescription = description }
     ) {
+        if (heatStyle != null && level > 0) {
+            HeatFill(heatColor(heatStyle, level), Modifier.matchParentSize().padding(2.dp))
+        }
         Text(
             text = date.dayOfMonth.toString(),
             style = MaterialTheme.typography.bodyLarge.copy(
@@ -142,6 +157,7 @@ private fun DayCell(
                 fontWeight = if (date == today) FontWeight.ExtraBold else FontWeight.Medium
             ),
             color = when {
+                level > 0 -> heatOnColor(level)
                 date == today -> todoriColors.accentDeep
                 isFuture -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.28f)
                 else -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
@@ -149,6 +165,7 @@ private fun DayCell(
             modifier = Modifier.align(Alignment.TopStart).padding(start = 5.dp, top = 3.dp)
         )
         when {
+            heatStyle != null -> if (!isFuture && level == 0) EmptySlot(cellSize * 0.32f, Modifier.align(Alignment.Center))
             sessions.isNotEmpty() -> {
                 PoppingTomato(cellSize * 0.54f, Modifier.align(Alignment.Center).offset(y = cellSize * 0.07f))
                 if (sessions.size > 1) CountBadge(sessions.size, Modifier.align(Alignment.BottomEnd))
@@ -156,6 +173,21 @@ private fun DayCell(
             !isFuture -> EmptySlot(cellSize * 0.32f, Modifier.align(Alignment.Center))
         }
     }
+}
+
+/** 농도 모드의 색 칸. 나타날 때 톡 하고 커진다. */
+@Composable
+private fun HeatFill(color: Color, modifier: Modifier = Modifier) {
+    val scale = remember { Animatable(0.6f) }
+    LaunchedEffect(Unit) { scale.animateTo(1f, spring(dampingRatio = 0.5f)) }
+    Box(
+        modifier
+            .graphicsLayer {
+                scaleX = scale.value
+                scaleY = scale.value
+            }
+            .background(color, RoundedCornerShape(12.dp))
+    )
 }
 
 /** 칸이 나타날 때 토마토가 통통 튀며 채워진다. */

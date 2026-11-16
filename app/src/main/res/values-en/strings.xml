@@ -53,6 +53,17 @@
     <string name="record_delete_day_message">%d tomato records will be removed. You can still undo right after.</string>
     <string name="record_delete_confirm">Delete</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="record_mode_sticker">Stickers</string>
+    <string name="record_mode_heat">Heat</string>
+    <string name="record_heat_less">Less</string>
+    <string name="record_heat_more">More</string>
+    <string name="record_style_ripening">Ripening</string>
+    <string name="record_style_blush">Blush</string>
+    <string name="record_cell_heat_description">%1$s, focused %2$s</string>
+    <string name="record_ripeness_1">Still a green tomato. Starting is half the work 🌱</string>
+    <string name="record_ripeness_2">Ripening nicely, keep going!</string>
+    <string name="record_ripeness_3">Almost ripe and rosy 🍅</string>
+    <string name="record_ripeness_4">Fully ripe! You were amazing today ✨</string>
     <string name="record_empty_title">No tomatoes yet</string>
     <string name="record_empty_hint">Every finished focus session\nfills in one tomato</string>
     <string name="done_label">Done!</string>

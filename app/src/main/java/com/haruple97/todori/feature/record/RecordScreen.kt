@@ -56,7 +56,9 @@ import com.haruple97.todori.core.model.SessionRecord
 import com.haruple97.todori.core.ui.FloatingDecor
 import com.haruple97.todori.core.ui.GlassIconButton
 import com.haruple97.todori.core.ui.icon.TodoriIcons
+import com.haruple97.todori.feature.record.component.CalendarModeToggle
 import com.haruple97.todori.feature.record.component.DayDetail
+import com.haruple97.todori.feature.record.component.HeatLegend
 import com.haruple97.todori.feature.record.component.EmptyRecordHint
 import com.haruple97.todori.feature.record.component.MonthCalendar
 import com.haruple97.todori.feature.record.component.RecordSummary
@@ -76,7 +78,9 @@ private class RecordActions(
     val onNextMonth: () -> Unit,
     val onSelect: (java.time.LocalDate) -> Unit,
     val onDelete: (SessionRecord) -> Unit,
-    val onDeleteDay: () -> Unit
+    val onDeleteDay: () -> Unit,
+    val onHeatMode: (Boolean) -> Unit,
+    val onHeatStyle: (com.haruple97.todori.core.model.HeatStyle) -> Unit
 )
 
 @Composable
@@ -100,7 +104,9 @@ fun RecordScreen(
         onNextMonth = viewModel::nextMonth,
         onSelect = viewModel::select,
         onDelete = { viewModel.delete(listOf(it)) },
-        onDeleteDay = { confirmDeleteDay = true }
+        onDeleteDay = { confirmDeleteDay = true },
+        onHeatMode = viewModel::setHeatMode,
+        onHeatStyle = viewModel::setHeatStyle
     )
 
     // 삭제가 끝나면 되돌리기 스낵바를 띄운다. 확인 창 대신 되돌리기로 실수를 막는다.
@@ -289,7 +295,13 @@ private fun CalendarSection(ui: RecordUiState, actions: RecordActions, cellSize:
                 enabled = ui.canGoNext
             )
         }
+        CalendarModeToggle(
+            heatMode = ui.calendar.heatMode,
+            onChange = actions.onHeatMode,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
         MonthCalendar(
+            heatStyle = if (ui.calendar.heatMode) ui.calendar.style else null,
             month = ui.month,
             today = ui.today,
             selected = ui.selected,
@@ -297,6 +309,9 @@ private fun CalendarSection(ui: RecordUiState, actions: RecordActions, cellSize:
             cellSize = cellSize,
             onSelect = actions.onSelect
         )
+        if (ui.calendar.heatMode) {
+            HeatLegend(ui.calendar.style, actions.onHeatStyle, width = cellSize * 7)
+        }
     }
 }
 
@@ -308,6 +323,7 @@ private fun DetailSection(ui: RecordUiState, actions: RecordActions) {
         DayDetail(
             date = ui.selected,
             sessions = ui.selectedSessions,
+            showRipeness = ui.calendar.heatMode,
             zone = ZoneId.systemDefault(),
             onDelete = actions.onDelete,
             onDeleteAll = actions.onDeleteDay

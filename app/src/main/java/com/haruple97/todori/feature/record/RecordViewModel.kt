@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.haruple97.todori.core.common.currentStreak
 import com.haruple97.todori.core.common.groupByDay
 import com.haruple97.todori.core.data.repository.SessionRepository
+import com.haruple97.todori.core.data.repository.SettingsRepository
+import com.haruple97.todori.core.model.CalendarPrefs
+import com.haruple97.todori.core.model.HeatStyle
 import com.haruple97.todori.core.model.SessionRecord
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDate
@@ -28,7 +31,8 @@ data class RecordUiState(
     val days: Map<LocalDate, List<SessionRecord>> = emptyMap(),
     val totalCount: Int = 0,
     val totalMinutes: Int = 0,
-    val streak: Int = 0
+    val streak: Int = 0,
+    val calendar: CalendarPrefs = CalendarPrefs()
 ) {
     val canGoNext: Boolean get() = month.isBefore(YearMonth.from(today))
     val selectedSessions: List<SessionRecord> get() = days[selected].orEmpty()
@@ -42,7 +46,8 @@ sealed interface RecordEvent {
 
 @HiltViewModel
 class RecordViewModel @Inject constructor(
-    private val sessionRepository: SessionRepository
+    private val sessionRepository: SessionRepository,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
     private val zone = ZoneId.systemDefault()
     private val today = LocalDate.now(zone)
@@ -52,7 +57,7 @@ class RecordViewModel @Inject constructor(
 
     val events: Flow<RecordEvent> = _events.receiveAsFlow()
 
-    val uiState: StateFlow<RecordUiState> = combine(sessionRepository.sessions, month, selected) { sessions, m, sel ->
+    val uiState: StateFlow<RecordUiState> = combine(sessionRepository.sessions, month, selected, settingsRepository.calendarPrefs) { sessions, m, sel, prefs ->
         val byDay = groupByDay(sessions, zone)
         RecordUiState(
             today = today,
@@ -61,7 +66,8 @@ class RecordViewModel @Inject constructor(
             days = byDay,
             totalCount = sessions.size,
             totalMinutes = sessions.sumOf { it.durationMinutes },
-            streak = currentStreak(byDay.keys, today)
+            streak = currentStreak(byDay.keys, today),
+            calendar = prefs
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RecordUiState(today = today))
 
@@ -73,6 +79,14 @@ class RecordViewModel @Inject constructor(
 
     fun select(date: LocalDate) {
         if (!date.isAfter(today)) selected.value = date
+    }
+
+    fun setHeatMode(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setHeatMode(enabled) }
+    }
+
+    fun setHeatStyle(style: HeatStyle) {
+        viewModelScope.launch { settingsRepository.setHeatStyle(style) }
     }
 
     fun delete(sessions: List<SessionRecord>) {

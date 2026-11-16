@@ -7,7 +7,9 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.haruple97.todori.core.model.Appearance
+import com.haruple97.todori.core.model.CalendarPrefs
 import com.haruple97.todori.core.model.CycleSettings
+import com.haruple97.todori.core.model.HeatStyle
 import com.haruple97.todori.core.model.SkinId
 import com.haruple97.todori.core.model.ThemeId
 import com.haruple97.todori.core.model.TimerSettings
@@ -29,6 +31,11 @@ interface SettingsRepository {
     /** 사이클 모드 설정(프리미엄). 켜져 있어도 구독이 없으면 쓰지 않는다. */
     val cycle: Flow<CycleSettings>
     suspend fun setCycle(settings: CycleSettings)
+
+    /** 기록 달력 보기 방식(스티커/농도)과 농도 색 스타일. */
+    val calendarPrefs: Flow<CalendarPrefs>
+    suspend fun setHeatMode(enabled: Boolean)
+    suspend fun setHeatStyle(style: HeatStyle)
 
     /** 인앱 리뷰를 이미 띄웠는지. 첫 성공 때 한 번만 요청하기 위한 표식. */
     suspend fun isReviewRequested(): Boolean
@@ -81,6 +88,18 @@ class SettingsRepositoryImpl @Inject constructor(
         }
     }
 
+    override val calendarPrefs: Flow<CalendarPrefs> = dataStore.data.map { prefs ->
+        CalendarPrefs(heatMode = prefs[HEAT_MODE] ?: false, style = HeatStyle.fromId(prefs[HEAT_STYLE]))
+    }
+
+    override suspend fun setHeatMode(enabled: Boolean) {
+        dataStore.edit { it[HEAT_MODE] = enabled }
+    }
+
+    override suspend fun setHeatStyle(style: HeatStyle) {
+        dataStore.edit { it[HEAT_STYLE] = style.id }
+    }
+
     override suspend fun isReviewRequested(): Boolean = dataStore.data.first()[REVIEW_REQUESTED] ?: false
 
     override suspend fun markReviewRequested() {
@@ -91,6 +110,8 @@ class SettingsRepositoryImpl @Inject constructor(
         val FOCUS_MINUTES = intPreferencesKey("focus_minutes")
         val SKIN = stringPreferencesKey("skin")
         val THEME = stringPreferencesKey("theme")
+        val HEAT_MODE = booleanPreferencesKey("heat_mode")
+        val HEAT_STYLE = stringPreferencesKey("heat_style")
         val REVIEW_REQUESTED = booleanPreferencesKey("review_requested")
         val CYCLE_ENABLED = booleanPreferencesKey("cycle_enabled")
         val CYCLE_ROUNDS = intPreferencesKey("cycle_rounds")
