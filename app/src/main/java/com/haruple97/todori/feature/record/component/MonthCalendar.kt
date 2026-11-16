@@ -81,7 +81,7 @@ fun MonthCalendar(
                     style = small,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.width(cellSize).padding(bottom = 4.dp)
+                    modifier = Modifier.width(cellSize).padding(top = 6.dp, bottom = 8.dp)
                 )
             }
         }

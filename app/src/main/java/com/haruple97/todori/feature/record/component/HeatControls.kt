@@ -44,7 +44,7 @@ fun CalendarModeToggle(heatMode: Boolean, onChange: (Boolean) -> Unit, modifier:
 @Composable
 fun HeatLegend(style: HeatStyle, onStyleChange: (HeatStyle) -> Unit, width: Dp, modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier.width(width).padding(top = 10.dp),
+        modifier = modifier.width(width).padding(top = 16.dp, start = 4.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp)
     ) {

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -24,7 +25,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -78,29 +86,69 @@ fun YearHeatmap(
     } ?: summary
     val muted = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
 
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(Modifier.horizontalScroll(scroll, enabled = interactive), horizontalArrangement = Arrangement.spacedBy(GAP)) {
-            weeks.forEachIndexed { index, week ->
-                val firstOfMonth = week.firstOrNull { it.dayOfMonth == 1 && it <= today }
-                Column(verticalArrangement = Arrangement.spacedBy(GAP)) {
-                    Box(Modifier.height(14.dp).width(CELL)) {
-                        // 월 라벨은 열 폭을 넘겨 그리므로 다음 열을 가리지 않게 겹쳐 둔다.
-                        if (firstOfMonth != null && index < weeks.size - 2) {
+    val fadeWidth = with(LocalDensity.current) { 18.dp.toPx() }
+
+    Column(modifier) {
+        Row {
+            // 요일 라벨(월·수·금)은 스크롤되지 않게 왼쪽에 고정한다.
+            Column(verticalArrangement = Arrangement.spacedBy(GAP), modifier = Modifier.padding(end = 8.dp)) {
+                Spacer(Modifier.height(14.dp))
+                weeks.first().forEachIndexed { row, day ->
+                    Box(Modifier.height(CELL), contentAlignment = Alignment.CenterStart) {
+                        if (row % 2 == 1) {
                             Text(
-                                text = firstOfMonth.format(monthFormatter),
+                                text = day.dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT, locale),
                                 style = MaterialTheme.typography.bodyLarge.copy(fontSize = 10.sp),
                                 color = muted,
                                 softWrap = false,
-                                maxLines = 1,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Visible
+                                maxLines = 1
                             )
                         }
                     }
-                    week.forEach { day -> YearCell(day, today, minutes[day] ?: 0, style, selected == day, interactive) { selected = it } }
+                }
+            }
+            Row(
+                Modifier
+                    .weight(1f)
+                    // 스크롤로 잘리는 왼쪽 가장자리는 칸이 반쯤 잘려 보이지 않게 부드럽게 흐린다.
+                    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                    .drawWithContent {
+                        drawContent()
+                        if (scroll.value > 0) {
+                            drawRect(
+                                brush = Brush.horizontalGradient(listOf(Color.Transparent, Color.Black), startX = 0f, endX = fadeWidth),
+                                size = Size(fadeWidth, size.height),
+                                blendMode = BlendMode.DstIn
+                            )
+                        }
+                    }
+                    .horizontalScroll(scroll, enabled = interactive),
+                horizontalArrangement = Arrangement.spacedBy(GAP)
+            ) {
+                weeks.forEachIndexed { index, week ->
+                    val firstOfMonth = week.firstOrNull { it.dayOfMonth == 1 && it <= today }
+                    Column(verticalArrangement = Arrangement.spacedBy(GAP)) {
+                        Box(Modifier.height(14.dp).width(CELL)) {
+                            // 월 라벨은 열 폭을 넘겨 그리므로 다음 열을 가리지 않게 겹쳐 둔다.
+                            if (firstOfMonth != null && index < weeks.size - 2) {
+                                Text(
+                                    text = firstOfMonth.format(monthFormatter),
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 10.sp),
+                                    color = muted,
+                                    softWrap = false,
+                                    maxLines = 1,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Visible
+                                )
+                            }
+                        }
+                        week.forEach { day -> YearCell(day, today, minutes[day] ?: 0, style, selected == day, interactive) { selected = it } }
+                    }
                 }
             }
         }
+        Spacer(Modifier.height(16.dp))
         Text(caption, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f))
+        Spacer(Modifier.height(10.dp))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             val label = MaterialTheme.typography.bodyLarge.copy(fontSize = 11.sp)
             Text(stringResource(R.string.record_heat_less), style = label, color = muted)

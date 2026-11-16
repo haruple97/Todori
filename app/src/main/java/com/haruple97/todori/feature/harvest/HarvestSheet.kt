@@ -97,7 +97,8 @@ fun HarvestSheet(harvest: Harvest, style: HeatStyle, onDismiss: () -> Unit, modi
                 )
                 Spacer(Modifier.height(16.dp))
             }
-            ConfettiBurst(trigger = burst)
+            // fillMaxSize를 쓰는 효과가 시트를 화면 끝까지 늘리지 않도록 내용 크기에 맞춘다.
+            ConfettiBurst(trigger = burst, modifier = Modifier.matchParentSize())
         }
     }
 }

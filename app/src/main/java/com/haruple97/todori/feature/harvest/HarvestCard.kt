@@ -6,7 +6,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,7 +38,7 @@ import com.haruple97.todori.core.ui.formatDuration
 import com.haruple97.todori.feature.record.component.heatColor
 import java.time.format.DateTimeFormatter
 
-/** 월말에 공유하는 "이달의 수확" 카드. 4:5 비율이라 인스타 피드·스토리에 올리기 좋다. */
+/** 월말에 공유하는 "이달의 수확" 카드. 5:7 비율이며 6주짜리 달력이 들어가는 달도 통계 줄과 겹치지 않는 높이다. */
 @Composable
 fun HarvestCard(harvest: Harvest, style: HeatStyle, modifier: Modifier = Modifier) {
     val colors = todoriColors
@@ -54,10 +55,12 @@ fun HarvestCard(harvest: Harvest, style: HeatStyle, modifier: Modifier = Modifie
     )
     val onCard = MaterialTheme.colorScheme.onBackground
 
+    BoxWithConstraints(modifier.fillMaxWidth()) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(4f / 5f)
+            // 5:7 이상으로, 6주짜리 달력이 들어가는 달은 내용만큼 더 길어진다(통계 줄이 격자에 붙지 않게).
+            .defaultMinSize(minHeight = maxWidth * 7f / 5f)
             .clip(RoundedCornerShape(32.dp))
             .background(Brush.verticalGradient(listOf(colors.celebrate.top, colors.celebrate.bottom)))
             .padding(horizontal = 24.dp, vertical = 22.dp),
@@ -72,7 +75,7 @@ fun HarvestCard(harvest: Harvest, style: HeatStyle, modifier: Modifier = Modifie
         TomatoCharacter(
             mood = TomatoMood.Happy,
             ripeness = (harvestTier(harvest.tomatoes) + 1) / 4f,
-            modifier = Modifier.size(84.dp)
+            modifier = Modifier.size(68.dp)
         )
         Row(verticalAlignment = Alignment.Bottom) {
             Text(
@@ -90,39 +93,48 @@ fun HarvestCard(harvest: Harvest, style: HeatStyle, modifier: Modifier = Modifie
         Text(message, style = MaterialTheme.typography.bodyLarge, color = onCard.copy(alpha = 0.75f), textAlign = TextAlign.Center)
         Spacer(Modifier.height(14.dp))
         MonthHeat(harvest, weeks, style)
+        Spacer(Modifier.height(20.dp))
         Spacer(Modifier.weight(1f))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+        // 격자와 통계가 한 덩어리로 보이지 않도록 통계는 반투명 알약 패널에 따로 담는다.
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.55f), RoundedCornerShape(20.dp))
+                .padding(horizontal = 8.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
             Stat(formatDuration(harvest.minutes), stringResource(R.string.stat_focus_time))
             Stat(stringResource(R.string.days_format, harvest.activeDays), stringResource(R.string.harvest_active_days))
             Stat(stringResource(R.string.days_format, harvest.bestStreak), stringResource(R.string.harvest_best_streak))
         }
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(14.dp))
         Text(
             text = stringResource(R.string.app_name),
             style = MaterialTheme.typography.labelLarge,
             color = onCard.copy(alpha = 0.45f)
         )
     }
+    }
 }
 
 @Composable
 private fun MonthHeat(harvest: Harvest, weeks: List<List<java.time.LocalDate?>>, style: HeatStyle) {
     val empty = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.08f)
-    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         weeks.forEach { week ->
-            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 week.forEach { date ->
                     val level = date?.let { heatLevel(harvest.dayMinutes[it] ?: 0) } ?: 0
                     Box(
                         Modifier
-                            .size(26.dp)
+                            .size(24.dp)
                             .background(
                                 when {
                                     date == null -> androidx.compose.ui.graphics.Color.Transparent
                                     level == 0 -> empty
                                     else -> heatColor(style, level)
                                 },
-                                RoundedCornerShape(8.dp)
+                                RoundedCornerShape(7.dp)
                             )
                     )
                 }

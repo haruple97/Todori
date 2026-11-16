@@ -144,7 +144,8 @@ private fun RipenessComment(level: Int) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         TomatoCharacter(
             mood = if (level >= 3) TomatoMood.Happy else TomatoMood.Idle,
-            ripeness = level / 4f,
+            // 중간 단계에서 초록과 빨강이 섞여 탁해 보이지 않게, 풋토마토(1단계) 외에는 이미 붉은 쪽으로 둔다.
+            ripeness = when (level) { 1 -> 0f; 2 -> 0.75f; 3 -> 0.9f; else -> 1f },
             modifier = Modifier.size(52.dp)
         )
         Surface(

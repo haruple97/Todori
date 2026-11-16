@@ -316,7 +316,7 @@ private fun CalendarSection(ui: RecordUiState, actions: RecordActions, cellSize:
         CalendarModeToggle(
             heatMode = ui.calendar.heatMode,
             onChange = actions.onHeatMode,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(top = 4.dp, bottom = 14.dp)
         )
         MonthCalendar(
             heatStyle = if (ui.calendar.heatMode) ui.calendar.style else null,
@@ -331,7 +331,7 @@ private fun CalendarSection(ui: RecordUiState, actions: RecordActions, cellSize:
             HeatLegend(ui.calendar.style, actions.onHeatStyle, width = cellSize * 7)
         }
         if (ui.days.keys.any { java.time.YearMonth.from(it) == ui.month }) {
-            HarvestButton(actions.onOpenHarvest, Modifier.padding(top = 12.dp))
+            HarvestButton(actions.onOpenHarvest, Modifier.padding(top = 20.dp))
         }
     }
 }
