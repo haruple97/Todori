@@ -3,6 +3,9 @@ package com.haruple97.todori.widget
 import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -55,6 +58,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.TextStyle as JavaTextStyle
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 // 응답형 크기: 2x1 / 2x2 / 4x1 / 4x2. 기본 배치는 가장 낮은 4x1이고, 키우면 자세한 레이아웃이 된다.
 private val MiniSize = DpSize(110.dp, 70.dp)
@@ -80,9 +84,19 @@ class WeekWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val entryPoint = EntryPointAccessors.fromApplication(context.applicationContext, WeekWidgetEntryPoint::class.java)
-        val summary = buildWeekSummary(entryPoint.sessionRepository().sessions.first(), LocalDate.now(), ZoneId.systemDefault())
-        val prefs = entryPoint.settingsRepository().calendarPrefs.first()
-        provideContent { WeekWidgetContent(summary, prefs) }
+        val sessions = entryPoint.sessionRepository().sessions
+        val calendarPrefs = entryPoint.settingsRepository().calendarPrefs
+        val zone = ZoneId.systemDefault()
+        // 값을 한 번만 읽으면 이미 떠 있는 위젯 세션은 설정이 바뀌어도 다시 그려지지 않는다.
+        // 흐름을 구독해 두면 기록·보기 방식·색 스타일이 바뀔 때마다 위젯이 스스로 갱신된다.
+        val initialSummary = buildWeekSummary(sessions.first(), LocalDate.now(), zone)
+        val initialPrefs = calendarPrefs.first()
+        provideContent {
+            val summary by remember { sessions.map { buildWeekSummary(it, LocalDate.now(), zone) } }
+                .collectAsState(initialSummary)
+            val prefs by calendarPrefs.collectAsState(initialPrefs)
+            WeekWidgetContent(summary, prefs)
+        }
     }
 }
 
