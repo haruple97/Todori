@@ -34,7 +34,7 @@ data class StatsUiState(
     val longestStreak: Int = 0,
     /** 연간 잔디용 날짜별 집중 분과 색 스타일. */
     val yearMinutes: Map<LocalDate, Int> = emptyMap(),
-    val heatStyle: HeatStyle = HeatStyle.Ripening
+    val heatStyle: HeatStyle = HeatStyle.Blush
 )
 
 @HiltViewModel

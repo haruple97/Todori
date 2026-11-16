@@ -57,7 +57,7 @@ fun HeatLegend(style: HeatStyle, onStyleChange: (HeatStyle) -> Unit, width: Dp, 
         Text(stringResource(R.string.record_heat_more), style = label, color = muted)
         Box(Modifier.weight(1f))
         Segmented(
-            options = listOf(stringResource(R.string.record_style_ripening), stringResource(R.string.record_style_blush)),
+            options = listOf(stringResource(R.string.record_style_blush), stringResource(R.string.record_style_ripening)),
             selectedIndex = style.ordinal,
             onSelect = { onStyleChange(HeatStyle.entries[it]) },
             compact = true
