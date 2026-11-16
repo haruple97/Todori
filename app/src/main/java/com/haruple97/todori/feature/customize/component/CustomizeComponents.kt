@@ -50,7 +50,6 @@ import com.haruple97.todori.core.designsystem.theme.todoriColors
 import com.haruple97.todori.core.model.SkinId
 import com.haruple97.todori.core.model.ThemeId
 import com.haruple97.todori.core.ui.FloatingDecor
-import com.haruple97.todori.core.ui.JellyButton
 import com.haruple97.todori.core.ui.TomatoCharacter
 import com.haruple97.todori.core.ui.TomatoMood
 import com.haruple97.todori.core.ui.icon.TodoriIcons
@@ -104,16 +103,6 @@ fun PreviewCard(skin: SkinId, theme: ThemeId, modifier: Modifier = Modifier) {
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f)
                     )
                 }
-                Spacer(Modifier.height(8.dp))
-                // 이 테마에서 버튼이 어떻게 보이는지 보여주는 작은 견본
-                JellyButton(
-                    text = stringResource(R.string.btn_start),
-                    icon = TodoriIcons.Play,
-                    onClick = {},
-                    height = 40.dp,
-                    enabled = true,
-                    modifier = Modifier.fillMaxWidth(0.55f)
-                )
             }
         }
     }
