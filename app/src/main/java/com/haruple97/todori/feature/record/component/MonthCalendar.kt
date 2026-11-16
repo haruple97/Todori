@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -125,7 +126,7 @@ private fun DayCell(
     val minutes = sessions.sumOf { it.durationMinutes }
     val level = if (heatStyle == null) 0 else heatLevel(minutes)
     val description = if (heatStyle == null) {
-        stringResource(R.string.record_cell_description, date.format(dayFormatter), sessions.size)
+        pluralStringResource(R.plurals.record_cell_description, sessions.size, date.format(dayFormatter), sessions.size)
     } else {
         stringResource(R.string.record_cell_heat_description, date.format(dayFormatter), formatDuration(minutes))
     }

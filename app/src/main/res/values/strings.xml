@@ -41,8 +41,12 @@
     <string name="stat_streak">연속 달성</string>
     <string name="month_pattern">yyyy년 M월</string>
     <string name="day_pattern">M월 d일 (E)</string>
-    <string name="record_cell_description">%1$s, 토마토 %2$d개</string>
-    <string name="record_day_summary">토마토 %1$d개 · %2$s</string>
+    <plurals name="record_day_summary">
+        <item quantity="other">토마토 %1$d개 · %2$s</item>
+    </plurals>
+    <plurals name="record_cell_description">
+        <item quantity="other">%1$s, 토마토 %2$d개</item>
+    </plurals>
     <string name="record_day_empty">이 날은 채운 토마토가 없어요</string>
     <string name="record_delete">이 토마토 기록 삭제</string>
     <string name="record_delete_day">이 날 기록 모두 삭제</string>

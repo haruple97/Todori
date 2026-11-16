@@ -41,8 +41,14 @@
     <string name="stat_streak">Streak</string>
     <string name="month_pattern">MMMM yyyy</string>
     <string name="day_pattern">EEE, MMM d</string>
-    <string name="record_cell_description">%1$s, %2$d tomatoes</string>
-    <string name="record_day_summary">%1$d tomatoes · %2$s</string>
+    <plurals name="record_day_summary">
+        <item quantity="one">%1$d tomato · %2$s</item>
+        <item quantity="other">%1$d tomatoes · %2$s</item>
+    </plurals>
+    <plurals name="record_cell_description">
+        <item quantity="one">%1$s, %2$d tomato</item>
+        <item quantity="other">%1$s, %2$d tomatoes</item>
+    </plurals>
     <string name="record_day_empty">No tomatoes on this day</string>
     <string name="record_delete">Delete this tomato record</string>
     <string name="record_delete_day">Delete all records for this day</string>

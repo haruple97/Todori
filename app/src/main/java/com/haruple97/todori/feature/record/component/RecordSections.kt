@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -84,8 +85,9 @@ fun DayDetail(
                 )
             } else {
                 Text(
-                    text = stringResource(
-                        R.string.record_day_summary,
+                    text = pluralStringResource(
+                        R.plurals.record_day_summary,
+                        sessions.size,
                         sessions.size,
                         formatDuration(sessions.sumOf { it.durationMinutes })
                     ),
