@@ -150,27 +150,32 @@ private fun DayCell(
         if (heatStyle != null && level > 0) {
             HeatFill(heatColor(heatStyle, level), Modifier.matchParentSize().padding(2.dp))
         }
+        // 농도 모드에서는 날짜를 칸 한가운데에 두어 모서리에 붙지 않게 하고, 빈 날의 점선 원도 없애 화면을 차분하게 한다.
+        // 스티커 모드는 토마토가 가운데를 쓰므로 왼쪽 위에 두되 테두리에서 충분히 띄운다.
+        val numberAlignment = if (heatStyle != null) Alignment.Center else Alignment.TopStart
         Text(
             text = date.dayOfMonth.toString(),
             style = MaterialTheme.typography.bodyLarge.copy(
-                fontSize = 11.sp,
+                fontSize = if (heatStyle != null) 13.sp else 11.sp,
                 fontWeight = if (date == today) FontWeight.ExtraBold else FontWeight.Medium
             ),
             color = when {
                 level > 0 -> heatOnColor(level)
                 date == today -> todoriColors.accentDeep
                 isFuture -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.28f)
-                else -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                else -> MaterialTheme.colorScheme.onBackground.copy(alpha = if (heatStyle != null) 0.7f else 0.6f)
             },
-            modifier = Modifier.align(Alignment.TopStart).padding(start = 5.dp, top = 3.dp)
+            modifier = Modifier
+                .align(numberAlignment)
+                .then(if (heatStyle == null) Modifier.padding(start = 8.dp, top = 6.dp) else Modifier)
         )
         when {
-            heatStyle != null -> if (!isFuture && level == 0) EmptySlot(cellSize * 0.32f, Modifier.align(Alignment.Center))
+            heatStyle != null -> Unit
             sessions.isNotEmpty() -> {
-                PoppingTomato(cellSize * 0.54f, Modifier.align(Alignment.Center).offset(y = cellSize * 0.07f))
+                PoppingTomato(cellSize * 0.5f, Modifier.align(Alignment.Center).offset(y = cellSize * 0.1f))
                 if (sessions.size > 1) CountBadge(sessions.size, Modifier.align(Alignment.BottomEnd))
             }
-            !isFuture -> EmptySlot(cellSize * 0.32f, Modifier.align(Alignment.Center))
+            !isFuture -> EmptySlot(cellSize * 0.3f, Modifier.align(Alignment.Center).offset(y = cellSize * 0.1f))
         }
     }
 }
