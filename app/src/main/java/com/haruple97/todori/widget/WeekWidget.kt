@@ -42,7 +42,11 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.haruple97.todori.MainActivity
 import com.haruple97.todori.R
+import com.haruple97.todori.core.common.heatLevel
 import com.haruple97.todori.core.data.repository.SessionRepository
+import com.haruple97.todori.core.data.repository.SettingsRepository
+import com.haruple97.todori.core.model.CalendarPrefs
+import com.haruple97.todori.core.model.HeatStyle
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -66,6 +70,8 @@ private val Accent = ColorProvider(day = Color(0xFFE5607A), night = Color(0xFFFF
 @InstallIn(SingletonComponent::class)
 interface WeekWidgetEntryPoint {
     fun sessionRepository(): SessionRepository
+
+    fun settingsRepository(): SettingsRepository
 }
 
 /** 이번 주(일~토) 토마토 기록을 보여주는 홈 화면 위젯. 탭하면 기록 화면으로 이동한다. */
@@ -73,16 +79,15 @@ class WeekWidget : GlanceAppWidget() {
     override val sizeMode = SizeMode.Responsive(setOf(MiniSize, SmallSize, CompactSize, WideSize))
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val repository = EntryPointAccessors
-            .fromApplication(context.applicationContext, WeekWidgetEntryPoint::class.java)
-            .sessionRepository()
-        val summary = buildWeekSummary(repository.sessions.first(), LocalDate.now(), ZoneId.systemDefault())
-        provideContent { WeekWidgetContent(summary) }
+        val entryPoint = EntryPointAccessors.fromApplication(context.applicationContext, WeekWidgetEntryPoint::class.java)
+        val summary = buildWeekSummary(entryPoint.sessionRepository().sessions.first(), LocalDate.now(), ZoneId.systemDefault())
+        val prefs = entryPoint.settingsRepository().calendarPrefs.first()
+        provideContent { WeekWidgetContent(summary, prefs) }
     }
 }
 
 @Composable
-private fun WeekWidgetContent(summary: WeekSummary) {
+private fun WeekWidgetContent(summary: WeekSummary, prefs: CalendarPrefs) {
     val context = LocalContext.current
     val size = LocalSize.current
     val openRecord = Intent(Intent.ACTION_VIEW, "todori://record".toUri()).setClass(context, MainActivity::class.java)
@@ -98,8 +103,8 @@ private fun WeekWidgetContent(summary: WeekSummary) {
         contentAlignment = Alignment.Center
     ) {
         when {
-            wide && tall -> WideLayout(summary)
-            wide -> CompactLayout(summary)
+            wide && tall -> WideLayout(summary, prefs)
+            wide -> CompactLayout(summary, prefs)
             tall -> SmallLayout(summary)
             else -> MiniLayout(summary)
         }
@@ -108,7 +113,7 @@ private fun WeekWidgetContent(summary: WeekSummary) {
 
 /** 4x2 이상: 제목·요약 한 줄 + 7일. */
 @Composable
-private fun WideLayout(summary: WeekSummary) {
+private fun WideLayout(summary: WeekSummary, prefs: CalendarPrefs) {
     val context = LocalContext.current
     Column(GlanceModifier.fillMaxSize()) {
         Row(GlanceModifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -125,7 +130,7 @@ private fun WideLayout(summary: WeekSummary) {
         // 위젯이 세로로 커져도 7일 줄이 가운데에 모이도록 남는 공간 안에서 세로 중앙 정렬한다.
         Box(GlanceModifier.fillMaxWidth().defaultWeight(), contentAlignment = Alignment.Center) {
             Row(GlanceModifier.fillMaxWidth()) {
-                summary.days.forEach { day -> DayCell(day, labelSize = 11.sp, tomato = 26.dp, verticalPadding = 6.dp) }
+                summary.days.forEach { day -> DayCell(day, prefs, labelSize = 11.sp, tomato = 26.dp, verticalPadding = 6.dp) }
             }
         }
     }
@@ -133,7 +138,7 @@ private fun WideLayout(summary: WeekSummary) {
 
 /** 4x1: 왼쪽에 이번 주 요약, 오른쪽에 7일. 가장 낮은 기본 크기. */
 @Composable
-private fun CompactLayout(summary: WeekSummary) {
+private fun CompactLayout(summary: WeekSummary, prefs: CalendarPrefs) {
     val context = LocalContext.current
     Row(GlanceModifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
         Column(
@@ -153,12 +158,12 @@ private fun CompactLayout(summary: WeekSummary) {
                 style = TextStyle(color = Accent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
             )
         }
-        summary.days.forEach { day -> DayCell(day, labelSize = 10.sp, tomato = 22.dp, verticalPadding = 3.dp) }
+        summary.days.forEach { day -> DayCell(day, prefs, labelSize = 10.sp, tomato = 22.dp, verticalPadding = 3.dp) }
     }
 }
 
 @Composable
-private fun RowScope.DayCell(day: WeekDay, labelSize: TextUnit, tomato: Dp, verticalPadding: Dp) {
+private fun RowScope.DayCell(day: WeekDay, prefs: CalendarPrefs, labelSize: TextUnit, tomato: Dp, verticalPadding: Dp) {
     val context = LocalContext.current
     val label = day.date.dayOfWeek.getDisplayName(JavaTextStyle.SHORT, context.resources.configuration.locales[0])
     // 폭은 가중치로 균등 분배하고 높이는 내용에 맞춘다(fillMaxSize를 쓰면 한 칸이 줄 전체를 차지한다).
@@ -180,6 +185,8 @@ private fun RowScope.DayCell(day: WeekDay, labelSize: TextUnit, tomato: Dp, vert
         Spacer(GlanceModifier.height(2.dp))
         Box(GlanceModifier.size(tomato + 2.dp), contentAlignment = Alignment.Center) {
             val (drawable, size) = when {
+                // 농도 모드: 하루 집중 시간에 따라 진해지는 둥근 칸(기록 탭·통계와 같은 단계·색).
+                prefs.heatMode && day.count > 0 -> heatDrawable(prefs.style, heatLevel(day.minutes)) to tomato * 0.9f
                 day.count > 0 -> R.drawable.widget_tomato to tomato
                 day.isFuture -> R.drawable.widget_dot_future to tomato * 0.7f
                 else -> R.drawable.widget_tomato_empty to tomato * 0.85f
@@ -189,8 +196,18 @@ private fun RowScope.DayCell(day: WeekDay, labelSize: TextUnit, tomato: Dp, vert
                 contentDescription = context.getString(R.string.widget_day_description, label, day.count),
                 modifier = GlanceModifier.size(size)
             )
-            if (day.count > 1) CountBadge(day.count)
+            if (day.count > 1 && !prefs.heatMode) CountBadge(day.count)
         }
+    }
+}
+
+private fun heatDrawable(style: HeatStyle, level: Int): Int {
+    val ripening = style == HeatStyle.Ripening
+    return when (level.coerceIn(1, 4)) {
+        1 -> if (ripening) R.drawable.widget_heat_ripening_1 else R.drawable.widget_heat_blush_1
+        2 -> if (ripening) R.drawable.widget_heat_ripening_2 else R.drawable.widget_heat_blush_2
+        3 -> if (ripening) R.drawable.widget_heat_ripening_3 else R.drawable.widget_heat_blush_3
+        else -> if (ripening) R.drawable.widget_heat_ripening_4 else R.drawable.widget_heat_blush_4
     }
 }
 

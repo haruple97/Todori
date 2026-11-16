@@ -49,4 +49,13 @@ class WeekSummaryTest {
         assertFalse(summary.days[3].isFuture)
         assertTrue(summary.days[4].isFuture)
     }
+
+    @Test
+    fun `하루 집중 시간은 그날 세션 분의 합이다`() {
+        val today = LocalDate.of(2026, 11, 18)
+        val summary = buildWeekSummary(listOf(session(today), session(today, hour = 15)), today, seoul)
+
+        assertEquals(50, summary.days.first { it.isToday }.minutes)
+        assertEquals(0, summary.days.first { it.date == LocalDate.of(2026, 11, 16) }.minutes)
+    }
 }

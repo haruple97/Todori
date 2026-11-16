@@ -7,7 +7,7 @@ import com.haruple97.todori.core.common.weekOf
 import java.time.LocalDate
 import java.time.ZoneId
 
-data class WeekDay(val date: LocalDate, val count: Int, val isToday: Boolean, val isFuture: Boolean)
+data class WeekDay(val date: LocalDate, val count: Int, val minutes: Int, val isToday: Boolean, val isFuture: Boolean)
 
 data class WeekSummary(val days: List<WeekDay>, val total: Int, val streak: Int)
 
@@ -15,7 +15,7 @@ data class WeekSummary(val days: List<WeekDay>, val total: Int, val streak: Int)
 fun buildWeekSummary(sessions: List<SessionRecord>, today: LocalDate, zone: ZoneId): WeekSummary {
     val byDay = groupByDay(sessions, zone)
     val days = weekOf(today).map { date ->
-        WeekDay(date, byDay[date]?.size ?: 0, isToday = date == today, isFuture = date.isAfter(today))
+        WeekDay(date, byDay[date]?.size ?: 0, byDay[date].orEmpty().sumOf { it.durationMinutes }, isToday = date == today, isFuture = date.isAfter(today))
     }
     return WeekSummary(days, total = days.sumOf { it.count }, streak = currentStreak(byDay.keys, today))
 }

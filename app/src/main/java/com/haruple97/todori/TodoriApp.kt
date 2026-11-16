@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.glance.appwidget.updateAll
 import com.haruple97.todori.core.common.DefaultDispatcher
 import com.haruple97.todori.core.data.repository.SessionRepository
+import com.haruple97.todori.core.data.repository.SettingsRepository
 import com.haruple97.todori.widget.WeekWidget
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -19,6 +20,8 @@ import kotlinx.coroutines.launch
 class TodoriApp : Application() {
     @Inject lateinit var sessionRepository: SessionRepository
 
+    @Inject lateinit var settingsRepository: SettingsRepository
+
     @Inject @field:DefaultDispatcher lateinit var dispatcher: CoroutineDispatcher
 
     override fun onCreate() {
@@ -32,6 +35,13 @@ class TodoriApp : Application() {
                 .distinctUntilChanged()
                 .drop(1)
                 // updateAll은 위젯 세션이 닫힐 때까지 한참 대기하므로, 다음 변경이 밀리지 않게 각각 따로 실행한다.
+                .collect { scope.launch { WeekWidget().updateAll(this@TodoriApp) } }
+        }
+        // 기록 탭에서 보기 방식(스티커/농도)이나 색 스타일을 바꾸면 위젯도 같은 모양으로 맞춘다.
+        scope.launch {
+            settingsRepository.calendarPrefs
+                .distinctUntilChanged()
+                .drop(1)
                 .collect { scope.launch { WeekWidget().updateAll(this@TodoriApp) } }
         }
     }
