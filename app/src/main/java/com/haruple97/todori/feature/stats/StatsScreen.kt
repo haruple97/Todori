@@ -158,6 +158,8 @@ private fun PremiumArea(
             bestBucket = ui.bestBucket,
             month = ui.month,
             longestStreak = ui.longestStreak,
+            yearMinutes = ui.yearMinutes,
+            heatStyle = ui.heatStyle,
             interactive = true,
             onPreviousWeek = onPreviousWeek,
             onNextWeek = onNextWeek
@@ -173,6 +175,8 @@ private fun PremiumArea(
             bestBucket = TimeBucket.Afternoon,
             month = SampleMonth,
             longestStreak = 5,
+            yearMinutes = remember(ui.today) { sampleYear(ui.today) },
+            heatStyle = ui.heatStyle,
             interactive = false,
             onPreviousWeek = {},
             onNextWeek = {},
@@ -238,3 +242,11 @@ private val SampleBuckets = mapOf(
 )
 
 private val SampleMonth = MonthTotals(minutes = 500, count = 14, activeDays = 8)
+
+/** 잠긴 맛보기용 연간 샘플. 날짜마다 정해진 값이라 다시 그려도 바뀌지 않는다. */
+private fun sampleYear(today: LocalDate): Map<LocalDate, Int> =
+    (0 until 364).mapNotNull { back ->
+        val day = today.minusDays(back.toLong())
+        val seed = (day.toEpochDay() * 2654435761L).mod(11L).toInt()
+        if (seed < 4) null else day to listOf(20, 45, 75, 100, 130, 160, 200, 240)[seed - 4]
+    }.toMap()

@@ -105,12 +105,17 @@ fun PremiumStatsBlock(
     bestBucket: TimeBucket?,
     month: MonthTotals,
     longestStreak: Int,
+    yearMinutes: Map<LocalDate, Int>,
+    heatStyle: com.haruple97.todori.core.model.HeatStyle,
     interactive: Boolean,
     onPreviousWeek: () -> Unit,
     onNextWeek: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        SectionCard(stringResource(R.string.stats_section_year)) {
+            YearHeatmap(today, yearMinutes, heatStyle, interactive)
+        }
         SectionCard(stringResource(R.string.stats_section_week)) {
             WeekChart(chartWeek, today, chartCanGoNext, interactive, onPreviousWeek, onNextWeek)
         }

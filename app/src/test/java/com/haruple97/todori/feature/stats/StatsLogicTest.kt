@@ -129,4 +129,26 @@ class StatsLogicTest {
         // 지난주 기록이 없으면 늘었다고 말하지 않는다
         assertEquals(Insight.BestDay(DayOfWeek.WEDNESDAY), weekInsight(week, lastWeekMinutes = 0))
     }
+
+    @Test
+    fun `연간 잔디는 오늘이 든 주를 마지막 열로 53주를 일요일 시작으로 채운다`() {
+        val today = LocalDate.of(2026, 11, 18) // 수요일
+        val weeks = yearWeeks(today)
+
+        assertEquals(YEAR_WEEKS, weeks.size)
+        assertEquals(LocalDate.of(2026, 11, 15), weeks.last().first())
+        assertEquals(LocalDate.of(2025, 11, 16), weeks.first().first())
+        assertEquals(true, weeks.all { it.size == 7 && it.first().dayOfWeek == DayOfWeek.SUNDAY })
+        assertEquals(true, today in weeks.last())
+    }
+
+    @Test
+    fun `날짜별 집중 분은 같은 날 세션을 합치고 기록 없는 날은 넣지 않는다`() {
+        val result = minutesByDay(
+            listOf(session(at(2026, 11, 15, 9), 25), session(at(2026, 11, 15, 20), 50), session(at(2026, 11, 16), 30)),
+            seoul
+        )
+
+        assertEquals(mapOf(LocalDate.of(2026, 11, 15) to 75, LocalDate.of(2026, 11, 16) to 30), result)
+    }
 }

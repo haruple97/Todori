@@ -137,6 +137,10 @@
     <string name="insight_empty">이번 주 첫 집중을 기다리고 있어요</string>
     <string name="insight_improved">지난주보다 %1$s 더 집중했어요!</string>
     <string name="insight_best_day">이번 주엔 %1$s에 가장 집중했어요</string>
+    <string name="stats_section_year">토마토 밭</string>
+    <string name="stats_year_summary">최근 1년 · %1$d일 집중, 총 %2$s</string>
+    <string name="stats_year_caption">%1$s · %2$s</string>
+    <string name="stats_year_caption_empty">%1$s · 기록 없음</string>
     <string name="stats_section_week">주간 집중</string>
     <string name="stats_section_time">집중이 잘 되는 시간</string>
     <string name="stats_section_month">이번 달</string>

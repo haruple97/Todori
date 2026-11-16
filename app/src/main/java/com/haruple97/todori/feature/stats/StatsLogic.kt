@@ -1,6 +1,7 @@
 package com.haruple97.todori.feature.stats
 
 import com.haruple97.todori.core.common.groupByDay
+import com.haruple97.todori.core.common.weekOf
 import com.haruple97.todori.core.model.SessionRecord
 import java.time.DayOfWeek
 import java.time.Instant
@@ -101,4 +102,17 @@ fun weekInsight(thisWeek: List<DayStat>, lastWeekMinutes: Int): Insight {
     }
     val best = thisWeek.maxBy { it.minutes }
     return Insight.BestDay(best.date.dayOfWeek)
+}
+
+/** 연간 잔디에 쓰는 주(열) 개수. */
+const val YEAR_WEEKS = 53
+
+/** 날짜별 집중 분. 기록 없는 날은 들어 있지 않다. */
+fun minutesByDay(sessions: List<SessionRecord>, zone: ZoneId): Map<LocalDate, Int> =
+    groupByDay(sessions, zone).mapValues { (_, day) -> day.sumOf { it.durationMinutes } }
+
+/** [today]가 든 주를 마지막 열로 하는 [YEAR_WEEKS]주. 열마다 일~토 일곱 날짜이며, 오늘 이후 날짜도 채워 둔다. */
+fun yearWeeks(today: LocalDate): List<List<LocalDate>> {
+    val firstSunday = weekOf(today).first().minusWeeks((YEAR_WEEKS - 1).toLong())
+    return List(YEAR_WEEKS) { week -> weekOf(firstSunday.plusWeeks(week.toLong())) }
 }

@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.haruple97.todori.core.common.groupByDay
 import com.haruple97.todori.core.common.weekOf
 import com.haruple97.todori.core.data.repository.SessionRepository
+import com.haruple97.todori.core.data.repository.SettingsRepository
+import com.haruple97.todori.core.model.HeatStyle
 import com.haruple97.todori.core.premium.PremiumRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDate
@@ -29,13 +31,17 @@ data class StatsUiState(
     val buckets: Map<TimeBucket, Int> = emptyMap(),
     val bestBucket: TimeBucket? = null,
     val month: MonthTotals = MonthTotals(0, 0, 0),
-    val longestStreak: Int = 0
+    val longestStreak: Int = 0,
+    /** 연간 잔디용 날짜별 집중 분과 색 스타일. */
+    val yearMinutes: Map<LocalDate, Int> = emptyMap(),
+    val heatStyle: HeatStyle = HeatStyle.Ripening
 )
 
 @HiltViewModel
 class StatsViewModel @Inject constructor(
     sessionRepository: SessionRepository,
-    premiumRepository: PremiumRepository
+    premiumRepository: PremiumRepository,
+    settingsRepository: SettingsRepository
 ) : ViewModel() {
     private val zone = ZoneId.systemDefault()
 
@@ -45,8 +51,9 @@ class StatsViewModel @Inject constructor(
     val uiState: StateFlow<StatsUiState> = combine(
         sessionRepository.sessions,
         premiumRepository.isPremium,
-        chartOffset
-    ) { sessions, premium, offset ->
+        chartOffset,
+        settingsRepository.calendarPrefs
+    ) { sessions, premium, offset, calendar ->
         val today = LocalDate.now(zone)
         val thisSunday = weekOf(today).first()
         val currentWeek = weekStats(sessions, thisSunday, zone)
@@ -62,7 +69,9 @@ class StatsViewModel @Inject constructor(
             buckets = buckets,
             bestBucket = bestBucket(buckets),
             month = monthTotals(sessions, YearMonth.from(today), zone),
-            longestStreak = longestStreak(groupByDay(sessions, zone).keys)
+            longestStreak = longestStreak(groupByDay(sessions, zone).keys),
+            yearMinutes = minutesByDay(sessions, zone),
+            heatStyle = calendar.style
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), StatsUiState())
 

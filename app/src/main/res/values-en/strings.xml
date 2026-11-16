@@ -137,6 +137,10 @@
     <string name="insight_empty">Waiting for your first focus this week</string>
     <string name="insight_improved">%1$s more than last week!</string>
     <string name="insight_best_day">You focused best on %1$s this week</string>
+    <string name="stats_section_year">Tomato field</string>
+    <string name="stats_year_summary">Past year · %1$d active days, %2$s total</string>
+    <string name="stats_year_caption">%1$s · %2$s</string>
+    <string name="stats_year_caption_empty">%1$s · no sessions</string>
     <string name="stats_section_week">Weekly focus</string>
     <string name="stats_section_time">Your best hours</string>
     <string name="stats_section_month">This month</string>
