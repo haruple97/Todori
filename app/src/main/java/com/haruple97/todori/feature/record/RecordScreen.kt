@@ -78,7 +78,7 @@ import kotlinx.coroutines.launch
 private val MAX_CONTENT_WIDTH = 480.dp
 private val TOP_BAR_HEIGHT = 48.dp
 private val MONTH_HEADER_HEIGHT = 44.dp
-private val WEEKDAY_ROW_HEIGHT = 24.dp
+private val WEEKDAY_ROW_HEIGHT = 30.dp
 
 private class RecordActions(
     val onBack: () -> Unit,
@@ -239,14 +239,14 @@ private fun BoxScope.SinglePane(ui: RecordUiState, actions: RecordActions, conte
 @Composable
 private fun TwoPane(ui: RecordUiState, actions: RecordActions, width: Dp, height: Dp) {
     val rows = remember(ui.month) { monthGrid(ui.month).size }
-    // 달력이 세로 공간을 최대한 쓰도록 상단 바는 오른쪽 열로 보낸다.
+    // 달력이 세로 공간을 최대한 쓰도록 상단 바와 보기 전환·범례·수확 카드 버튼은 오른쪽 열로 보낸다.
     val leftWidth = (width - 40.dp - 24.dp) / 2
-    val fixedHeight = MONTH_HEADER_HEIGHT + WEEKDAY_ROW_HEIGHT + 12.dp
+    val fixedHeight = MONTH_HEADER_HEIGHT + WEEKDAY_ROW_HEIGHT + 16.dp
     val cellSize = minOf(leftWidth / 7, (height - 32.dp - fixedHeight) / rows)
 
     Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
         Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
-            CalendarSection(ui, actions, cellSize)
+            CalendarSection(ui, actions, cellSize, withControls = false)
         }
         Column(
             modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()),
@@ -254,6 +254,10 @@ private fun TwoPane(ui: RecordUiState, actions: RecordActions, width: Dp, height
         ) {
             TopBar(actions.onBack, actions.onOpenStats)
             RecordSummary(ui.totalCount, ui.totalMinutes, ui.streak)
+            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                CalendarModeToggle(heatMode = ui.calendar.heatMode, onChange = actions.onHeatMode)
+                CalendarFooter(ui, actions, width = leftWidth, modifier = Modifier.padding(top = 4.dp))
+            }
             DetailSection(ui, actions)
             Spacer(Modifier.height(72.dp))
         }
@@ -286,7 +290,13 @@ private fun TopBar(onBack: () -> Unit, onOpenStats: () -> Unit, modifier: Modifi
 }
 
 @Composable
-private fun CalendarSection(ui: RecordUiState, actions: RecordActions, cellSize: Dp, modifier: Modifier = Modifier) {
+private fun CalendarSection(
+    ui: RecordUiState,
+    actions: RecordActions,
+    cellSize: Dp,
+    modifier: Modifier = Modifier,
+    withControls: Boolean = true
+) {
     val locale = LocalConfiguration.current.locales[0]
     val monthPattern = stringResource(R.string.month_pattern)
     val monthTitle = remember(ui.month, monthPattern, locale) {
@@ -313,11 +323,15 @@ private fun CalendarSection(ui: RecordUiState, actions: RecordActions, cellSize:
                 enabled = ui.canGoNext
             )
         }
-        CalendarModeToggle(
-            heatMode = ui.calendar.heatMode,
-            onChange = actions.onHeatMode,
-            modifier = Modifier.padding(top = 4.dp, bottom = 14.dp)
-        )
+        if (withControls) {
+            CalendarModeToggle(
+                heatMode = ui.calendar.heatMode,
+                onChange = actions.onHeatMode,
+                modifier = Modifier.padding(top = 4.dp, bottom = 14.dp)
+            )
+        } else {
+            Spacer(Modifier.height(8.dp))
+        }
         MonthCalendar(
             heatStyle = if (ui.calendar.heatMode) ui.calendar.style else null,
             month = ui.month,
@@ -327,8 +341,16 @@ private fun CalendarSection(ui: RecordUiState, actions: RecordActions, cellSize:
             cellSize = cellSize,
             onSelect = actions.onSelect
         )
+        if (withControls) CalendarFooter(ui, actions, width = cellSize * 7)
+    }
+}
+
+/** 농도 모드의 범례·색 스타일 칩과 수확 카드 버튼. 가로 화면에서는 달력 대신 오른쪽 열에 놓인다. */
+@Composable
+private fun CalendarFooter(ui: RecordUiState, actions: RecordActions, width: Dp, modifier: Modifier = Modifier) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         if (ui.calendar.heatMode) {
-            HeatLegend(ui.calendar.style, actions.onHeatStyle, width = cellSize * 7)
+            HeatLegend(ui.calendar.style, actions.onHeatStyle, width = width)
         }
         if (ui.days.keys.any { java.time.YearMonth.from(it) == ui.month }) {
             HarvestButton(actions.onOpenHarvest, Modifier.padding(top = 20.dp))
