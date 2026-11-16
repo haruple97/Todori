@@ -64,6 +64,16 @@
     <string name="record_ripeness_2">Ripening nicely, keep going!</string>
     <string name="record_ripeness_3">Almost ripe and rosy 🍅</string>
     <string name="record_ripeness_4">Fully ripe! You were amazing today ✨</string>
+    <string name="harvest_open">Make harvest card</string>
+    <string name="harvest_title">%1$s harvest</string>
+    <string name="harvest_unit">harvested</string>
+    <string name="harvest_active_days">Active days</string>
+    <string name="harvest_best_streak">Best streak</string>
+    <string name="harvest_share">Share as image</string>
+    <string name="harvest_msg_0">A small but precious first harvest</string>
+    <string name="harvest_msg_1">A month that ripened nicely</string>
+    <string name="harvest_msg_2">What a bountiful harvest!</string>
+    <string name="harvest_msg_3">Tomato farm boss unlocked 🏆</string>
     <string name="record_empty_title">No tomatoes yet</string>
     <string name="record_empty_hint">Every finished focus session\nfills in one tomato</string>
     <string name="done_label">Done!</string>

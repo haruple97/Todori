@@ -64,6 +64,16 @@
     <string name="record_ripeness_2">노랗게 익어가는 중이에요, 좋아요!</string>
     <string name="record_ripeness_3">분홍빛으로 거의 다 익었어요 🍅</string>
     <string name="record_ripeness_4">완숙 토마토! 오늘 진짜 멋졌어요 ✨</string>
+    <string name="harvest_open">수확 카드 만들기</string>
+    <string name="harvest_title">%1$s의 수확</string>
+    <string name="harvest_unit">개 수확</string>
+    <string name="harvest_active_days">집중한 날</string>
+    <string name="harvest_best_streak">최장 연속</string>
+    <string name="harvest_share">이미지로 공유</string>
+    <string name="harvest_msg_0">작지만 소중한 첫 수확이에요</string>
+    <string name="harvest_msg_1">알차게 익어간 한 달이었어요</string>
+    <string name="harvest_msg_2">정말 풍성한 수확이에요!</string>
+    <string name="harvest_msg_3">토마토 농장 사장님 등극 🏆</string>
     <string name="record_empty_title">아직 채운 토마토가 없어요</string>
     <string name="record_empty_hint">집중을 한 번 끝낼 때마다\n토마토가 하나씩 채워져요</string>
     <string name="done_label">완료!</string>

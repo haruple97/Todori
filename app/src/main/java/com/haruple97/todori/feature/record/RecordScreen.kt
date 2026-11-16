@@ -56,6 +56,15 @@ import com.haruple97.todori.core.model.SessionRecord
 import com.haruple97.todori.core.ui.FloatingDecor
 import com.haruple97.todori.core.ui.GlassIconButton
 import com.haruple97.todori.core.ui.icon.TodoriIcons
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import com.haruple97.todori.feature.harvest.HarvestSheet
+import com.haruple97.todori.feature.harvest.monthHarvest
 import com.haruple97.todori.feature.record.component.CalendarModeToggle
 import com.haruple97.todori.feature.record.component.DayDetail
 import com.haruple97.todori.feature.record.component.HeatLegend
@@ -79,6 +88,7 @@ private class RecordActions(
     val onSelect: (java.time.LocalDate) -> Unit,
     val onDelete: (SessionRecord) -> Unit,
     val onDeleteDay: () -> Unit,
+    val onOpenHarvest: () -> Unit,
     val onHeatMode: (Boolean) -> Unit,
     val onHeatStyle: (com.haruple97.todori.core.model.HeatStyle) -> Unit
 )
@@ -97,6 +107,7 @@ fun RecordScreen(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var confirmDeleteDay by rememberSaveable { mutableStateOf(false) }
+    var showHarvest by rememberSaveable { mutableStateOf(false) }
     val actions = RecordActions(
         onBack = onBack,
         onOpenStats = onOpenStats,
@@ -105,6 +116,7 @@ fun RecordScreen(
         onSelect = viewModel::select,
         onDelete = { viewModel.delete(listOf(it)) },
         onDeleteDay = { confirmDeleteDay = true },
+        onOpenHarvest = { showHarvest = true },
         onHeatMode = viewModel::setHeatMode,
         onHeatStyle = viewModel::setHeatStyle
     )
@@ -149,6 +161,12 @@ fun RecordScreen(
                 modifier = Modifier.align(Alignment.BottomCenter).widthIn(max = MAX_CONTENT_WIDTH)
             ) { data -> CuteSnackbar(data) }
         }
+    }
+
+    if (showHarvest) {
+        val harvest = remember(ui.days, ui.month) { monthHarvest(ui.days, ui.month) }
+        if (harvest.isEmpty) showHarvest = false
+        else HarvestSheet(harvest, ui.calendar.style, onDismiss = { showHarvest = false })
     }
 
     if (confirmDeleteDay) {
@@ -312,6 +330,32 @@ private fun CalendarSection(ui: RecordUiState, actions: RecordActions, cellSize:
         if (ui.calendar.heatMode) {
             HeatLegend(ui.calendar.style, actions.onHeatStyle, width = cellSize * 7)
         }
+        if (ui.days.keys.any { java.time.YearMonth.from(it) == ui.month }) {
+            HarvestButton(actions.onOpenHarvest, Modifier.padding(top = 12.dp))
+        }
+    }
+}
+
+/** 이 달의 수확 카드를 여는 알약 버튼. */
+@Composable
+private fun HarvestButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val shape = RoundedCornerShape(50)
+    Row(
+        modifier = modifier
+            .clip(shape)
+            .background(todoriColors.accentLight.copy(alpha = 0.22f))
+            .border(1.2.dp, todoriColors.accentLight, shape)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 9.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Icon(TodoriIcons.Sparkles, contentDescription = null, tint = todoriColors.accentDeep, modifier = Modifier.size(16.dp))
+        Text(
+            text = stringResource(R.string.harvest_open),
+            style = MaterialTheme.typography.labelLarge,
+            color = todoriColors.accentDeep
+        )
     }
 }
 
