@@ -14,6 +14,8 @@
 
     <string name="widget_name">이번 주 토마토</string>
     <string name="widget_description">이번 주에 채운 토마토를 한눈에 봐요</string>
+    <string name="widget_heat_name">이번 주 토마토 농도</string>
+    <string name="widget_heat_description">하루 집중 시간이 길수록 진해지는 색으로 이번 주를 봐요</string>
     <string name="widget_title">이번 주 토마토</string>
     <string name="widget_summary">%1$d개 · 연속 %2$d일</string>
     <string name="widget_week_label">이번 주</string>

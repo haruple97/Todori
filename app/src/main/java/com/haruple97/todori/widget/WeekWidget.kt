@@ -78,8 +78,12 @@ interface WeekWidgetEntryPoint {
     fun settingsRepository(): SettingsRepository
 }
 
-/** 이번 주(일~토) 토마토 기록을 보여주는 홈 화면 위젯. 탭하면 기록 화면으로 이동한다. */
-class WeekWidget : GlanceAppWidget() {
+/**
+ * 이번 주(일~토) 토마토 기록을 보여주는 홈 화면 위젯. 탭하면 기록 화면으로 이동한다.
+ * 모양은 위젯마다 고정이다: 기본은 토마토 스티커와 개수 배지, [HeatWidget]은 집중 시간 농도 색 칸.
+ * (앱의 달력 보기 방식과는 별개이며, 농도 위젯의 색 스타일만 앱 설정을 따른다.)
+ */
+open class WeekWidget(private val heat: Boolean = false) : GlanceAppWidget() {
     override val sizeMode = SizeMode.Responsive(setOf(MiniSize, SmallSize, CompactSize, WideSize))
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
@@ -95,7 +99,7 @@ class WeekWidget : GlanceAppWidget() {
             val summary by remember { sessions.map { buildWeekSummary(it, LocalDate.now(), zone) } }
                 .collectAsState(initialSummary)
             val prefs by calendarPrefs.collectAsState(initialPrefs)
-            WeekWidgetContent(summary, prefs)
+            WeekWidgetContent(summary, prefs.copy(heatMode = heat))
         }
     }
 }
@@ -305,3 +309,6 @@ private fun MiniLayout(summary: WeekSummary) {
         }
     }
 }
+
+/** 하루 집중 시간을 농도 색 칸으로 보여주는 위젯. 토마토 위젯과 따로 추가한다. */
+class HeatWidget : WeekWidget(heat = true)

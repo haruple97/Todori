@@ -14,6 +14,8 @@
 
     <string name="widget_name">This week\'s tomatoes</string>
     <string name="widget_description">See the tomatoes you filled this week at a glance</string>
+    <string name="widget_heat_name">This week\'s heat</string>
+    <string name="widget_heat_description">See your week as colors that deepen with focus time</string>
     <string name="widget_title">This week</string>
     <string name="widget_summary">%1$d · %2$d-day streak</string>
     <string name="widget_week_label">This week</string>

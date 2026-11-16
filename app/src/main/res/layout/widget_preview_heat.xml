@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 위젯 선택 화면에서 보이는 정적 미리보기. 농도 위젯(HeatWidget)의 4x1 컴팩트 레이아웃을 흉내 낸다. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_widget"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="8dp">
+
+    <LinearLayout
+        android:layout_width="58dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/widget_week_label"
+            android:textColor="#FF8A6A70"
+            android:textSize="10sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/widget_preview_count"
+            android:textColor="#FF5A3A3F"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/widget_preview_streak"
+            android:textColor="#FFE5607A"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/WidgetPreviewDay">
+        <TextView
+            style="@style/WidgetPreviewDayLabel"
+            android:text="@string/weekday_sun" />
+        <ImageView
+            style="@style/WidgetPreviewTomato"
+            android:src="@drawable/widget_tomato_empty" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/WidgetPreviewDay">
+        <TextView
+            style="@style/WidgetPreviewDayLabel"
+            android:text="@string/weekday_mon" />
+        <ImageView
+            style="@style/WidgetPreviewTomato"
+            android:src="@drawable/widget_heat_blush_4" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/WidgetPreviewDay">
+        <TextView
+            style="@style/WidgetPreviewDayLabel"
+            android:text="@string/weekday_tue" />
+        <ImageView
+            style="@style/WidgetPreviewTomato"
+            android:src="@drawable/widget_heat_blush_2" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/WidgetPreviewDay" android:background="@drawable/bg_widget_today">
+        <TextView
+            style="@style/WidgetPreviewDayLabel"
+            android:text="@string/weekday_wed" />
+        <ImageView
+            style="@style/WidgetPreviewTomato"
+            android:src="@drawable/widget_heat_blush_3" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/WidgetPreviewDay">
+        <TextView
+            style="@style/WidgetPreviewDayLabel"
+            android:text="@string/weekday_thu" />
+        <ImageView
+            style="@style/WidgetPreviewTomato"
+            android:src="@drawable/widget_dot_future" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/WidgetPreviewDay">
+        <TextView
+            style="@style/WidgetPreviewDayLabel"
+            android:text="@string/weekday_fri" />
+        <ImageView
+            style="@style/WidgetPreviewTomato"
+            android:src="@drawable/widget_dot_future" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/WidgetPreviewDay">
+        <TextView
+            style="@style/WidgetPreviewDayLabel"
+            android:text="@string/weekday_sat" />
+        <ImageView
+            style="@style/WidgetPreviewTomato"
+            android:src="@drawable/widget_dot_future" />
+    </LinearLayout>
+</LinearLayout>

@@ -6,3 +6,7 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 class WeekWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = WeekWidget()
 }
+
+class HeatWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = HeatWidget()
+}
